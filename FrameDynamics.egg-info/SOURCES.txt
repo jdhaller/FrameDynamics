@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+FrameDynamics/Block.py
+FrameDynamics/Frame.py
+FrameDynamics/__init__.py
+FrameDynamics.egg-info/PKG-INFO
+FrameDynamics.egg-info/SOURCES.txt
+FrameDynamics.egg-info/dependency_links.txt
+FrameDynamics.egg-info/not-zip-safe
+FrameDynamics.egg-info/requires.txt
+FrameDynamics.egg-info/top_level.txt
