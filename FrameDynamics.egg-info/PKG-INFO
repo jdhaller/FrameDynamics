@@ -9,7 +9,7 @@ License: MIT
 Keywords: NMR interaction average Hamiltonian theory toggling frame
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Programming Language :: Python
-Classifier: Topic :: Scientific :: Physics
+Classifier: Topic :: Scientific/Engineering :: Physics
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
