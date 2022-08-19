@@ -29,7 +29,7 @@ More examples can be found in the FrameDynamics github-repository ([link](https:
 
 Initialize frame:
 ```Python
-from FrameDynamics import Frame
+from FrameDynamics.Frame import Frame
 frame = Frame(["I", "J"]) 
 ```
 
@@ -69,7 +69,8 @@ in the pulse sequence (e.g. Reburp pulse and 180° hard pulse in heteronuclear
 echo)
 ```Python
 import numpy as np
-from FrameDynamics import Frame, Block
+from FrameDynamics.Frame import Frame
+from FrameDynamics.Block import Block
 frame = Frame(["I", "S"])
 ```
 

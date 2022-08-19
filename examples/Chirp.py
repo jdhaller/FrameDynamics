@@ -1,7 +1,7 @@
 # simulate homonuclear coupling evolution during chirp pulse
 
 import numpy as np
-from FrameDynamics import Frame
+from FrameDynamics.Frame import Frame
 
 # initialize frame
 frame = Frame(["I", "J"])

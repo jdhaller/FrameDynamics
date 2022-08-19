@@ -2,7 +2,8 @@
 # where a Reburp is aligned with a hard 180° pulse.
 
 import numpy as np
-from FrameDynamics import Frame, Block
+from FrameDynamics.Frame import Frame
+from FrameDynamics.Block import Block
 
 # initialize frame
 frame = Frame(["I", "S"])

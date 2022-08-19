@@ -1,7 +1,7 @@
 # simulate the isotropic perfect echo 1
 
 import numpy as np
-from FrameDynamics import Frame
+from FrameDynamics.Frame import Frame
 
 # initialize frame
 frame = Frame(["I", "S"])
