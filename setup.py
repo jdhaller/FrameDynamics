@@ -20,7 +20,8 @@ setup(name='FrameDynamics',
       include_package_data=True,
             install_requires = [
           'numpy',
-          'scipy'],
+          'scipy>=1.8.0',
+          'matplotlib'],
       zip_safe=False)
 
 

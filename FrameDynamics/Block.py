@@ -6,8 +6,8 @@ Institution: Karlsruhe Institute of Technology
 
 """
 
-from FrameDynamics import Frame
 import numpy as np
+from FrameDynamics.Frame import Frame
 
 
 
