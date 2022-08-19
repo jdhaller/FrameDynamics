@@ -23,7 +23,7 @@ pip install FrameDynamics
 ## Simulations
 Two examples shall be given: the WAHUHA sequence and a heteronuclear echo consisting of a shaped pulse and a hard 180° pulse. 
 
-More examples can be found in the FrameDynamics github-repository ([link](https://github.com/jdhaller/FrameDynamics/examples)).
+More examples can be found in the FrameDynamics github-repository ([link](https://github.com/jdhaller/FrameDynamics/tree/main/examples)).
 
 ### Example #1: WAHUHA sequence
 
