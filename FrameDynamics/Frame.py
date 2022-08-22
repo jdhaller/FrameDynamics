@@ -1058,8 +1058,9 @@ class Frame():
         # Interpolation is, hence, required before multiplication.
         T1 = self._Out[(spin1, o1)]
         T2 = self._Out[(spin2, o2)]
-        if round(T1[9][-1], 12) != round(T2[9][-1], 12): 
-            print("WARNING: TIME-MISMATCH?")
+        
+        # if round(T1[9][-1], 12) != round(T2[9][-1], 12): 
+        #     print("WARNING: TIME-MISMATCH?")
 
         timeseries = np.sort(np.concatenate( [T1[9], T2[9]] ) )
 
