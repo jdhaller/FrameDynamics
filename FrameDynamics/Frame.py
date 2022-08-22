@@ -1,7 +1,7 @@
 """
 Date: 2022/08
 Author: Jens D. Haller
-Mail: jens.haller@kit.edu
+Mail: jens.haller@kit.edu / jhaller@gmx.de
 Institution: Karlsruhe Institute of Technology
 
 """
