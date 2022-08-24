@@ -1,4 +1,4 @@
-from FrameDynamics import Frame
+from FrameDynamics.Frame import Frame
 
 # initialize frame
 frame = Frame(["I", "J"])
