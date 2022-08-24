@@ -60,8 +60,8 @@ class Frame():
 
         Returns:
             tuple: which specifies the given interaction. The tuple can later
-              be passed to plotting-methods (plot_traject, plot_AHT1D, 
-              plot_AHT2D)
+              be passed to plotting-methods (plot_traject, plot_H0_1D, 
+              plot_H0_2D)
         """
 
         # ====================================================================
