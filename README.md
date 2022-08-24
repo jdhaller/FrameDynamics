@@ -112,12 +112,12 @@ frame.start(MP=False, Traject=True)
 
 Create offset-dependent 2D graph that is plotted against both offsets:
 ```Python
-frame.plot_AHT2D(interaction)
+frame.plot_H0_2D(interaction)
 ```
 
 Create offset-dependent 1D graph that is plotted against specified offsets ("S"):
 ```Python
-frame.plot_AHT1D(interaction, "S", offset=0.)
+frame.plot_H0_1D(interaction, "S", offset=0.)
 ```
 
 Plot trajectories for specified interaction and operators (the given operators are default values). 

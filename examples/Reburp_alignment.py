@@ -34,8 +34,8 @@ frame.align(block1, block2, alignment="center")
 frame.start(Traject=True)
 
 # plotting
-frame.plot_AHT2D(interaction)
-frame.plot_AHT1D(interaction, "S", offset=0.)
+frame.plot_H0_2D(interaction)
+frame.plot_H0_1D(interaction, "S", offset=0.)
 frame.plot_traject(interaction)
 
 

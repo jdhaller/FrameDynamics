@@ -4,7 +4,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(name='FrameDynamics',
-      version='0.1.3',
+      version='0.1.4',
       description='Simulations of the average Hamiltonian.',
       long_description=long_description,
       long_description_content_type='text/markdown',
