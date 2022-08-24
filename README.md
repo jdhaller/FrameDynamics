@@ -93,9 +93,12 @@ Reburp = frame.load_shape("Reburp.1000")
 ```
 
 **After** the interaction and offsets are set for the Frame object, one can now
-initialize the Block class for each block. This has to be done
+initialize the Block class for each block. The frame-object has to be passed to the Block() class:
+
+```Python
 block1 = Block(frame, ["I"])
 block2 = Block(frame, ["S"])
+```
 
 Define a Reburp pulse on "I" and hard pulse on "S":
 ```Python
