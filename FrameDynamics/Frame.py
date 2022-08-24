@@ -598,14 +598,14 @@ class Frame():
         ax[n-1].set_xlabel("time / ms", fontsize=15)
         ax[0].set_xlim([X[i][0], X[i][-1]])
         
-        plt.tight_layout()
+        #plt.tight_layout()
 
         if save != None: plt.savefig(save, dpi=300)
         if show: plt.show()
     # ====================================================================
 
 
-    def plot_AHT1D(self, interaction, fixedSpin, offset=0, \
+    def plot_H0_1D(self, interaction, fixedSpin, offset=0, \
                    save=None, show=True, **kwargs):
         """
         Plot the average Hamiltonian for specified interaction against
@@ -679,14 +679,14 @@ class Frame():
         ax[3].set_ylabel("$k_0$ / a. u.", size=15)
         ax[6].set_ylabel("$k_0$ / a. u.", size=15)
 
-        plt.tight_layout()
+        #plt.tight_layout()
 
         if save != None: plt.savefig(save, dpi=300)
         if show: plt.show()
     # ====================================================================
 
 
-    def plot_AHT2D(self, interaction, levels=21, zlim=None, save=None, \
+    def plot_H0_2D(self, interaction, levels=21, zlim=None, save=None, \
                    show=True):
         """    
         Plot the average Hamiltonian for specified interaction against
@@ -773,7 +773,7 @@ class Frame():
         cbar2.ax.set_yticks(np.linspace(-vmax, vmax, 11))
         cbar3.ax.set_yticks(np.linspace(-vmax, vmax, 11))
 
-        plt.tight_layout()
+        #plt.tight_layout()
 
         if save != None: plt.savefig(save, dpi=300)
         if show: plt.show()
