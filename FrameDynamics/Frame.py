@@ -238,21 +238,21 @@ class Frame():
                 if t1 < t2:
                     other1._Sequence.append(other1._returnDelay(D))
                 else:
-                    other2._Sequence.append(other2._returnDelay(-D))
+                    other2._Sequence.append(other2._returnDelay(-1*D))
 
             elif alignment == "right":
                 if t1 < t2:
                     other1._Sequence.insert(0, other1._returnDelay(D))
                 else:
-                    other2._Sequence.insert(0, other2._returnDelay(-D) )
+                    other2._Sequence.insert(0, other2._returnDelay(-1*D) )
 
             elif alignment == "center":
                 if t1 < t2:
                     other1._Sequence.insert(0, other1._returnDelay(D/2) )
                     other1._Sequence.append( other1._returnDelay(D/2) )
                 else:
-                    other2._Sequence.insert(0, other2._returnDelay(-D/2) )
-                    other2._Sequence.append( other2._returnDelay(-D/2) )
+                    other2._Sequence.insert(0, other2._returnDelay(-1*D/2) )
+                    other2._Sequence.append( other2._returnDelay(-1*D/2) )
         # ====================================================================
 
         for seq in other1._Sequence:
@@ -666,12 +666,8 @@ class Frame():
 
 
         # Start plotting the graphs
-        fig = plt.figure(figsize=(10, 8))
-        ax = ImageGrid(fig, 111,          # as in plt.subplot(111)
-                nrows_ncols=(3,3),
-                axes_pad=0.23,
-                share_all=True,
-                aspect=False)
+        fig, ax = plt.subplots(3, 3, figsize=(10, 9), sharex=True, \
+                                         sharey=True, constrained_layout=True)
 
         labels = [r"$2{}_x{}_x$".format(fixed_spin, spinX),
                   r"$2{}_x{}_y$".format(fixed_spin, spinX),
@@ -685,21 +681,22 @@ class Frame():
                  ]
 
         for i in range(9):
-            ax[i].plot([X[0], X[-1]], [0, 0], "k--", lw=1)
-            ax[i].plot(X, temp[i], lw=2.5, color="#1425a4", **kwargs)
-            ax[i].text(0.05, 0.05, labels[i], transform=ax[i].transAxes, \
-                       size = 20)
+            ax[i//3, i%3].plot([X[0], X[-1]], [0, 0], "k--", lw=1)
+            ax[i//3, i%3].plot(X, temp[i], lw=2.5, color="#1425a4", **kwargs)
+            ax[i//3, i%3].text(0.05, 0.85, labels[i], \
+                                transform=ax[i//3, i%3].transAxes, size = 20)
 
-        ax[0].set_xlim([X[0], X[-1]])
-        ax[7].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[6].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[8].set_xlabel("offset (%s) / kHz" % spinX, size=15)
+        ax[0,0].set_xlim([X[0], X[-1]])
+        ax[2,0].set_xlabel("offset (%s) / kHz" % spinX, size=15)
+        ax[2,1].set_xlabel("offset (%s) / kHz" % spinX, size=15)
+        ax[2,2].set_xlabel("offset (%s) / kHz" % spinX, size=15)
 
-        ax[0].set_ylabel("$k_0$ / a. u.", size=15)
-        ax[3].set_ylabel("$k_0$ / a. u.", size=15)
-        ax[6].set_ylabel("$k_0$ / a. u.", size=15)
+        ax[0,0].set_ylabel("$k_0$ / a. u.", size=15)
+        ax[1,0].set_ylabel("$k_0$ / a. u.", size=15)
+        ax[2,0].set_ylabel("$k_0$ / a. u.", size=15)
 
-        #plt.tight_layout()
+        fig.set_constrained_layout_pads(w_pad=0.025, h_pad=0.025,
+            hspace=0.025, wspace=0.025)
 
         if save is not None:
             plt.savefig(save, dpi=300)
@@ -749,21 +746,12 @@ class Frame():
             vmax = zlim
         else:
             vmax = np.max(np.abs(temp))
-        vals = np.linspace(-vmax, vmax, levels)
+        vals = np.linspace(-1*vmax, vmax, levels)
         # ====================================================================
 
         # Start plotting the graphs
-        fig = plt.figure(figsize=(10, 9))
-
-        ax = ImageGrid(fig, 111,          # as in plt.subplot(111)
-                nrows_ncols=(3,3),
-                axes_pad=0.23,
-                share_all=True,
-                cbar_location="right",
-                cbar_mode="edge",
-                cbar_size="7%",
-                cbar_pad=0.2,
-                aspect=False)
+        fig, ax = plt.subplots(3, 3, figsize=(10, 9), sharex=True, \
+                                         sharey=True, constrained_layout=True)
 
         labels = [r"$2{}_x{}_x$".format(spinY, spinX),
                   r"$2{}_x{}_y$".format(spinY, spinX),
@@ -777,27 +765,24 @@ class Frame():
                  ]
 
         for i in range(9):
-            cb = ax[i].contourf(X, Y, temp[i], levels=vals, cmap=RWB)
-            ax[i].text(0.05, 0.85, labels[i], transform=ax[i].transAxes, \
-                       size = 20)
+            cb = ax[i//3, i%3].contourf(X, Y, temp[i], levels=vals, cmap=RWB)
+            ax[i//3, i%3].text(0.05, 0.85, labels[i], \
+                                transform=ax[i//3, i%3].transAxes, size = 20)
 
-        ax[7].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[6].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[8].set_xlabel("offset (%s) / kHz" % spinX, size=15)
+        ax[2,0].set_xlabel("offset (%s) / kHz" % spinX, size=15)
+        ax[2,1].set_xlabel("offset (%s) / kHz" % spinX, size=15)
+        ax[2,2].set_xlabel("offset (%s) / kHz" % spinX, size=15)
 
-        ax[0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
-        ax[3].set_ylabel("offset (%s) / kHz" % spinY, size=15)
-        ax[6].set_ylabel("offset (%s) / kHz" % spinY, size=15)
+        ax[0,0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
+        ax[1,0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
+        ax[2,0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
 
-        cbar1 = ax[2].cax.colorbar(cb)
-        cbar2 = ax[5].cax.colorbar(cb)
-        cbar3 = ax[8].cax.colorbar(cb)
+        fig.colorbar(cb, ax=ax[0,2])
+        fig.colorbar(cb, ax=ax[1,2])
+        fig.colorbar(cb, ax=ax[2,2])
 
-        cbar1.ax.set_yticks(np.linspace(-1*vmax, vmax, 11))
-        cbar2.ax.set_yticks(np.linspace(-1*vmax, vmax, 11))
-        cbar3.ax.set_yticks(np.linspace(-1*vmax, vmax, 11))
-
-        #plt.tight_layout()
+        fig.set_constrained_layout_pads(w_pad=0.025, h_pad=0.025,
+            hspace=0.025, wspace=0.025)
 
         if save is not None:
             plt.savefig(save, dpi=300)
