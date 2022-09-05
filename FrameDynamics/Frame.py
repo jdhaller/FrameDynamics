@@ -40,7 +40,8 @@ class Frame():
     # ====================================================================
 
 
-    def set_interaction(self, spin1, spin2, iType="Jweak"):
+    def set_interaction(self, spin1: str, spin2: str, iType: str="Jweak") \
+                        -> tuple:
 
         """
         Set an interaction for subsequent simulations.
@@ -74,7 +75,7 @@ class Frame():
     # ====================================================================
 
 
-    def set_offset(self, spin1, Off):
+    def set_offset(self, spin1: str, Off: float) -> None:
 
         """
         Set offsets for subsequent simulations.
@@ -99,7 +100,7 @@ class Frame():
 
 
     def pulse(self, spins: list, degree: float, amplitude: float,
-             phase: float):
+             phase: float) -> None:
 
         """
         Element for the creation of a pulse sequence.
@@ -141,8 +142,8 @@ class Frame():
     # ====================================================================
 
 
-    def shape(self, spins: list, shape: list, length:float, amplitude: float,
-             phase: float):
+    def shape(self, spins: list, shape: list, length: float, amplitude: float,
+             phase: float) -> None:
 
         """
         Element for the creation of a pulse sequence.
@@ -186,7 +187,7 @@ class Frame():
     # ====================================================================
 
 
-    def delay(self, length):
+    def delay(self, length: float) -> None:
 
         """
         Element for the creation of a pulse sequence.
@@ -207,7 +208,7 @@ class Frame():
     # ====================================================================
 
 
-    def align(self, other1, other2, alignment="center"):
+    def align(self, other1, other2, alignment: str="center") -> None:
         """
         Method to align pulse sequence elements.
         "align" takes two objects of the Block class. Each object contains
@@ -263,7 +264,8 @@ class Frame():
 
 
     @staticmethod
-    def load_shape(path_to_file, separator=",", start="##XYPOINTS=", end="##END"):
+    def load_shape(path_to_file: str, separator: str=",", \
+                   start: str="##XYPOINTS=", end: str="##END") -> list:
         """
         Load a pulse shape from file in Bruker format.
 
@@ -307,7 +309,8 @@ class Frame():
     # ====================================================================
 
 
-    def start(self, MP=True, CPUs=None, traject=False):
+    def start(self, MP: bool=True, CPUs: int=None, traject: bool=False) \
+             -> None:
 
         """
         Start simulations after the pulse sequence has been defined.
@@ -429,14 +432,15 @@ class Frame():
     # ====================================================================
 
 
-    def get_results(self, returns="all"):
+    def get_results(self, returns: tuple=None) -> dict:
 
         """
         Outputs average Hamiltonians as a dictionary or numpy array (3D).
 
         Args:
-            returnType (tuple): can be used to specify the output. If an
-              interaction (tuple) is passed, the respective Defaults to "all".
+            returnType (tuple): can be used to specify the output.
+              An interaction (tuple) can be specified with "returns".
+              Default will return all results.
 
         Returns:
             numpy arrad (3D) if an interaction is specified in returnType,
@@ -450,7 +454,7 @@ class Frame():
             "zx": [6], "zy": [7], "zz": [8].
         """
 
-        if returns == "all":
+        if returns is None:
             iterable = self._Interactions
         else:
             iterable = [returns]
@@ -471,7 +475,7 @@ class Frame():
                     results[interaction][:, o1, o2] = \
                         self._Results.get((interaction, o1, o2))
 
-        if returns == "all":
+        if returns is None:
             return results
 
         return results[returns]
@@ -491,9 +495,10 @@ class Frame():
     # ====================================================================
 
 
-    def plot_traject(self, interaction, \
-                    operators=("x1","y1","z1","xx","yy","zz"), offsets=None,\
-                    save=None, show=True):
+    def plot_traject(self, interaction: tuple, \
+                    operators: tuple=("x1","y1","z1","xx","yy","zz"), \
+                    offsets: dict=None, save: str=None, show: bool=True) \
+                    -> None:
         """
         Plot trajectory of Hamiltonian in the toggling / interaction frame.
 
@@ -625,8 +630,9 @@ class Frame():
     # ====================================================================
 
 
-    def plot_H0_1D(self, interaction, fixed_spin, offset=0, \
-                   save=None, show=True, **kwargs):
+    def plot_H0_1D(self, interaction: tuple, fixed_spin: str, \
+                 offset: float=0, save: str=None, show: bool=True, **kwargs) \
+                 -> None:
         """
         Plot the average Hamiltonian for specified interaction against
         the offset of one spin (1D).
@@ -705,8 +711,8 @@ class Frame():
     # ====================================================================
 
 
-    def plot_H0_2D(self, interaction, levels=21, zlim=None, save=None, \
-                   show=True):
+    def plot_H0_2D(self, interaction: tuple, levels: int=21, \
+                   zlim: float=None, save: str=None, show: bool=True) -> None:
         """
         Plot the average Hamiltonian for specified interaction against
         both offsets of spin1 and spin2 (2D).
