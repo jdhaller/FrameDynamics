@@ -75,7 +75,7 @@ class Block(Frame):
     # ====================================================================
 
 
-    def start(self, MP=True, CPUs=None, Traject=False):
+    def start(self, MP=True, CPUs=None, traject=False):
         """
         Can not be used in Block class! Use Frame class instead.
 
