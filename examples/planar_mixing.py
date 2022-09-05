@@ -27,7 +27,7 @@ frame.delay(0.005)
 frame.pulse(["I", "S"], 180, 10**(4), 1)
 frame.delay(0.005)
 frame.pulse(["I", "S"], 90, 10**(4), 2)
-frame.start(MP=1, Traject=True)
+frame.start(MP=1, traject=True)
 
 # plotting for interaction #1
 frame.plot_H0_2D(interaction)

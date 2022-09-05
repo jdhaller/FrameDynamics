@@ -31,7 +31,7 @@ block2.pulse(["S"], 180, 10**(5), 1)
 
 # align Reburp ("I") and hard pulse ("S") and simulate 
 frame.align(block1, block2, alignment="center")
-frame.start(Traject=True)
+frame.start(traject=True)
 
 # plotting
 frame.plot_H0_2D(interaction)

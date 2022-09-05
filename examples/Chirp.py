@@ -21,7 +21,7 @@ Chirp = frame.load_shape("SmCrp_BW50_RF9403_720u")
 
 # simulate chirp pulse
 frame.shape(["I", "J"], Chirp, 720*10**(-6), 9403, 1) 
-frame.start(Traject=True)
+frame.start(traject=True)
 
 # plotting
 frame.plot_H0_2D(interaction, save="Chirp_TF2D.png")

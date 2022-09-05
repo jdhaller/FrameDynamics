@@ -22,19 +22,19 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 class Frame():
 
     """
-    Numerical simulation of a toggling or interaction frame for 
+    Numerical simulation of a toggling or interaction frame for
     arbitrary pulse sequences.
 
-    Args for init:    
+    Args for init:
         spins (list): specify all spins in a list (e.g. ["I", "J", "S])
-    
+
     Returns:
         Frame-Object: object that encapsulates all methods for the simulation.
 
     """
 
     # ====================================================================
-    # 
+    #
     # PUBLIC METHODS
     #
     # ====================================================================
@@ -51,7 +51,7 @@ class Frame():
 
             spin2 (str): Second spin of interaction.
 
-            iType (str): interaction type which can either be "Jweak", 
+            iType (str): interaction type which can either be "Jweak",
               "Jstrong", "Dweak", "Dstrong" (Default: "Jweak").
 
         Raises:
@@ -60,7 +60,7 @@ class Frame():
 
         Returns:
             tuple: which specifies the given interaction. The tuple can later
-              be passed to plotting-methods (plot_traject, plot_H0_1D, 
+              be passed to plotting-methods (plot_traject, plot_H0_1D,
               plot_H0_2D)
         """
 
@@ -69,7 +69,7 @@ class Frame():
             raise RuntimeError("Please, specify interactions \
                  prior to the pulse sequence!")
         self._Interactions.append( (spin1, spin2, iType) )
-    
+
         return (spin1, spin2, iType)
     # ====================================================================
 
@@ -98,16 +98,16 @@ class Frame():
     # ====================================================================
 
 
-    def pulse(self, spins: list, degree: float, amplitude: float, 
+    def pulse(self, spins: list, degree: float, amplitude: float,
              phase: float):
 
         """
         Element for the creation of a pulse sequence.
-        A pulse can be defined with given rotation angle (degree), 
+        A pulse can be defined with given rotation angle (degree),
         rf amplitude (amplitude) and pulse phase (phase).
 
         Args:
-            spins (list): list containing the spins on which the pulse is 
+            spins (list): list containing the spins on which the pulse is
               applied (e.g. ["I", "J"])
 
             degree (float): specifies rotation angle of pulse.
@@ -141,19 +141,19 @@ class Frame():
     # ====================================================================
 
 
-    def shape(self, spins: list, shape: list, length:float, amplitude: float, 
+    def shape(self, spins: list, shape: list, length:float, amplitude: float,
              phase: float):
 
         """
         Element for the creation of a pulse sequence.
-        A shaped pulse (shape) can be defined with pulse length (length), 
-        rf amplitude (amplitude) and pulse phase (phase). 
+        A shaped pulse (shape) can be defined with pulse length (length),
+        rf amplitude (amplitude) and pulse phase (phase).
 
         Args:
-            spins (list): list containing the spins on which the pulse is 
+            spins (list): list containing the spins on which the pulse is
               applied (e.g. ["I", "J"])
 
-            shape (list): list containing all elements of the shaped pulse 
+            shape (list): list containing all elements of the shaped pulse
               (e.g. [[amp, ph], ... [amp, ph]]). The method "load_shape" can
               be used to read in a suitable file in Bruker format.
 
@@ -206,23 +206,23 @@ class Frame():
         self._Sequence.append( ("delay", length, PTS) )
     # ====================================================================
 
-    
+
     def align(self, other1, other2, alignment="center"):
         """
         Method to align pulse sequence elements.
         "align" takes two objects of the Block class. Each object contains
-        an individual sequence. The shorter sequence is extended by delays 
-        to match the longer sequence. Both sequences are later placed in the 
+        an individual sequence. The shorter sequence is extended by delays
+        to match the longer sequence. Both sequences are later placed in the
         main-sequence (of Frame class).
 
         Args:
-            other1 (object): first object created by the Block class 
+            other1 (object): first object created by the Block class
               which contains first pulse sequence block for alignment.
 
             other2 (object): secong object created by the Block class
               which contains second pulse sequence block for alignment.
 
-            alignment (str): define the alignment. Can be either "center", 
+            alignment (str): define the alignment. Can be either "center",
               "right" or "left". Defaults to "center".
         """
 
@@ -232,20 +232,22 @@ class Frame():
         # ====================================================================
         # Extend the shorter sequence by delays according to the alignment
         # argument ("center", "left", "right")
-        if t1 < t2: length = t2
-        else: length = t1
 
         if D != 0:
             if alignment == "left":
-                if t1 < t2: other1._Sequence.append(other1._returnDelay(D))
-                else: other2._Sequence.append(other2._returnDelay(-D))
+                if t1 < t2:
+                    other1._Sequence.append(other1._returnDelay(D))
+                else:
+                    other2._Sequence.append(other2._returnDelay(-D))
 
             elif alignment == "right":
-                if t1 < t2: other1._Sequence.insert(0, other1._returnDelay(D))
-                else: other2._Sequence.insert(0, other2._returnDelay(-D) )
+                if t1 < t2:
+                    other1._Sequence.insert(0, other1._returnDelay(D))
+                else:
+                    other2._Sequence.insert(0, other2._returnDelay(-D) )
 
             elif alignment == "center":
-                if t1 < t2: 
+                if t1 < t2:
                     other1._Sequence.insert(0, other1._returnDelay(D/2) )
                     other1._Sequence.append( other1._returnDelay(D/2) )
                 else:
@@ -253,52 +255,59 @@ class Frame():
                     other2._Sequence.append( other2._returnDelay(-D/2) )
         # ====================================================================
 
-        for seq in other1._Sequence: self._Sequence.append( seq )
-        for seq in other2._Sequence: self._Sequence.append( seq )
+        for seq in other1._Sequence:
+            self._Sequence.append( seq )
+        for seq in other2._Sequence:
+            self._Sequence.append( seq )
     # ====================================================================
 
 
-    def load_shape(self, path_to_file, separator=",", start="##XYPOINTS=", end="##END"):
+    @staticmethod
+    def load_shape(path_to_file, separator=",", start="##XYPOINTS=", end="##END"):
         """
         Load a pulse shape from file in Bruker format.
 
         Args:
             path_to_file (str): specifiy path to file (including filename).
 
-            separator (str, optional): character that is used to separate 
+            separator (str, optional): character that is used to separate
               amplitude and phase in file of shaped pulse. Defaults to ",".
 
             start (str, optional): specifies the line after which the shaped
               pulse starts in file of shaped pulse. Defaults to "##XYPOINTS=".
 
-            end (str, optional): specifies the line where the shaped pulse 
+            end (str, optional): specifies the line where the shaped pulse
               ends in file of shaped pulse. Defaults to "##END".
 
         Returns:
             shape (list): list of shaped pulse ([ [amp, ph], ..., [amp, ph] ])
         """
 
-        data = []; 
+        data = []
 
         with open(path_to_file, 'r') as tmp:
             load_data = tmp.read()
         load_data = load_data.split('\n')
-        
+
         flag = False
         for line in load_data:
-            if end in line: flag = False
+            if end in line:
+                flag = False
             if flag:
                 line = line.split(separator)
-                try: line = [float(slic) for slic in line]
-                except: line = [slic.replace(' ', '') for slic in line]
+                try:
+                    line = [float(slic) for slic in line]
+                except:
+                    line = [slic.replace(' ', '') for slic in line]
                 data.append(line)
-            if start in line: flag = True
+            if start in line:
+                flag = True
 
         return data
     # ====================================================================
 
 
-    def start(self, MP=True, CPUs=None, Traject=False):
+    def start(self, MP=True, CPUs=None, traject=False):
 
         """
         Start simulations after the pulse sequence has been defined.
@@ -309,17 +318,17 @@ class Frame():
             CPUs (int, optional): define number of CPUs for multiprocessing.
               Defaults to None and all CPUs except one is used.
 
-            Traject (bool, optional): has to be set to True if the 
-              trajectory of the Hamiltonian in the interaction frame is 
+            traject (bool, optional): has to be set to True if the
+              trajectory of the Hamiltonian in the interaction frame is
               needed. Defaults to False.
-        
+
         Raises:
             AssertionError: an interaction or pulse sequence needs to be
               defined before the simulation can be started.
         """
 
         self._MP = MP
-        self._flagT = Traject
+        self._flagT = traject
         self._START = time.time()
 
         if self._Interactions == [] or self._Sequence == []:
@@ -329,26 +338,30 @@ class Frame():
 
         # ====================================================================
         # Set the number of CPUs according to input or to "CPUs_available - 1"
-        if CPUs == None:
-            if mp.cpu_count() == 1: self.CPUs = 1
-            else: self._CPUs = mp.cpu_count() - 1
+        if CPUs is None:
+            if mp.cpu_count() == 1:
+                self.CPUs = 1
+            else:
+                self._CPUs = mp.cpu_count() - 1
 
         else:
             MP = True
             self._CPUs = CPUs
-        
+
         if MP:
             self._Out = mp.Manager().dict()
             pool = mp.Pool(processes=self._CPUs)
 
             self._Results = mp.Manager().dict()
             pool2 = mp.Pool(processes=self._CPUs)
-            if self._flagT: self._Traject = mp.Manager().dict()
+            if self._flagT:
+                self._Traject = mp.Manager().dict()
 
         else:
             self._Out = {}
             self._Results = {}
-            if self._flagT: self._Traject = {}
+            if self._flagT:
+                self._Traject = {}
         # ====================================================================
 
 
@@ -359,8 +372,8 @@ class Frame():
 
         for spin, offsets in self._Offsets.items():
             for o, offset in enumerate(offsets):
-                
-                # Initialize basis and hamilton operators, 
+
+                # Initialize basis and hamilton operators,
                 # as well as trajectory
                 pts = self._calcPoints(spin, o)
                 B, traject = self._zeroTraject(pts)
@@ -371,14 +384,14 @@ class Frame():
                     # Using a pool for multiprocessing
                     pool.apply_async(self._simulate, args=args)
 
-                else: 
+                else:
                     # No multiprocessing
                     self._simulate(*args)
 
         if MP:
-                pool.close()    # Close pool of workers
-                pool.join()     # Join pool
-                # self._Out.clear()
+            pool.close()    # Close pool of workers
+            pool.join()     # Join pool
+            # self._Out.clear()
 
         # ====================================================================
 
@@ -386,11 +399,11 @@ class Frame():
         diff = self._STEP - self._START
         print("   Single-spin trajectory: {:.3f} seconds ".format(diff))
 
-        # ====================================================================        
+        # ====================================================================
         # create zeroth order average Hamiltonian
-        
+
         for interaction in self._Interactions:
-            spin1, spin2, iType = interaction
+            spin1, spin2, _ = interaction
 
             for o1 in range(len(self._Offsets[spin1])):
                 for o2 in range(len(self._Offsets[spin2])):
@@ -400,8 +413,8 @@ class Frame():
                     if MP:
                         pool2.apply_async(self._expandBasis, args=args)
                     else:
-                        self._expandBasis(*args)
-            
+                        self._expandBasis(interaction, o1, o2)
+
         if MP:
             pool2.close()    # Close pool of workers
             pool2.join()     # Join pool
@@ -416,85 +429,90 @@ class Frame():
     # ====================================================================
 
 
-    def get_results(self, returnType="all"):
+    def get_results(self, returns="all"):
 
         """
         Outputs average Hamiltonians as a dictionary or numpy array (3D).
 
         Args:
-            returnType (tuple): can be used to specify the output. If an 
-              an interaction (tuple) is passed, the respective Defaults to "all".
-        
+            returnType (tuple): can be used to specify the output. If an
+              interaction (tuple) is passed, the respective Defaults to "all".
+
         Returns:
             numpy arrad (3D) if an interaction is specified in returnType,
             else a dictionary containing all interactions. The 3 dimensions
             in the numpy array are given as (9, len(offsets), len(offsets))
             where the offsets were defined by "set_offsets" for respective
-            spins in interaction. In the first dimension the 9 bilinear 
+            spins in interaction. In the first dimension the 9 bilinear
             basis operators are stored:
             "xx": [0], "xy": [1], "xz": [2],
             "yx": [3], "yy": [4], "yz": [5],
             "zx": [6], "zy": [7], "zz": [8].
         """
 
-        if returnType == "all": Iterable = self._Interactions
-        else: Iterable = [returnType]
+        if returns == "all":
+            iterable = self._Interactions
+        else:
+            iterable = [returns]
 
         # ====================================================================
-        Results = {}
+        results = {}
 
-        for interaction in Iterable:
-            spin1, spin2, iType = interaction
-            
-            LO1 = len(self._Offsets[spin1])
-            LO2 = len(self._Offsets[spin2])
-            Results[interaction] = np.zeros([9, LO1, LO2])
+        for interaction in iterable:
+            spin1, spin2, _ = interaction
 
-            for o1 in range(LO1):
-                for o2 in range(LO2):
+            lo1 = len(self._Offsets[spin1])
+            lo2 = len(self._Offsets[spin2])
+            results[interaction] = np.zeros([9, lo1, lo2])
 
-                    Results[interaction][:, o1, o2] = \
+            for o1 in range(lo1):
+                for o2 in range(lo2):
+
+                    results[interaction][:, o1, o2] = \
                         self._Results.get((interaction, o1, o2))
 
-        if returnType == "all":
-            return Results
-        else: 
-            return Results[interaction]
+        if returns == "all":
+            return results
+
+        return results[returns]
     # ====================================================================
-    
+
 
     def get_traject(self):
-        
-        if self._flagT == False:
+        """
+        ...coming soon...
+        """
+
+        if self._flagT is False:
             raise AssertionError("Trajectories were not calculated. \
                 Use the option in Frame.start(Traject=True).")
-        else: 
-            return dict(self._Traject)
+
+        return dict(self._Traject)
     # ====================================================================
 
 
     def plot_traject(self, interaction, \
-                    operators=["x1","y1","z1","xx","yy","zz"], offsets=None,\
+                    operators=("x1","y1","z1","xx","yy","zz"), offsets=None,\
                     save=None, show=True):
         """
         Plot trajectory of Hamiltonian in the toggling / interaction frame.
 
         Args:
-            interaction (tuple): specify the interaction for which the 
+            interaction (tuple): specify the interaction for which the
               trajectory is supposed to be plotted.
 
-            operators (list): specify a list of all operators that are 
+            operators (list): specify a list of all operators that are
               supposed to be plotted. Valid input is:
               ["x1","y1","z1","1x","1y","1z",
                "xx","yy","zz","xy","xy","xz", "zx", "yz", "zy"]
               Defaults to ["x1","y1","z1","xx","yy","zz"].
 
             offsets (dict): is a dictionary in which for each spin an offset
-              can be defined for which the trajectory is supposed to be 
-              plotted (e.g. offsets = {spin1: 0, spin2: 100}). 
+              can be defined for which the trajectory is supposed to be
+              plotted (e.g. offsets = {spin1: 0, spin2: 100}).
               Defaults to None (which implies {spin1: 0, spin2: 0}).
 
-            save (str, optional): define a filename to save figure. 
+            save (str, optional): define a filename to save figure.
               Defaults to None.
 
             show (bool, optional): show figure. Defaults to True.
@@ -511,9 +529,9 @@ class Frame():
 
         # Index of respective operators in self._Out (linear operators)
         # or in self._Traject (bilinear operators).
-        index = {            "1x": (0,), "1y": (1,), "1z": (2,), 
-                 "x1": (0,), "xx": (0,), "xy": (1,), "xz": (2,), 
-                 "y1": (1,), "yx": (3,), "yy": (4,), "yz": (5,), 
+        index = {            "1x": (0,), "1y": (1,), "1z": (2,),
+                 "x1": (0,), "xx": (0,), "xy": (1,), "xz": (2,),
+                 "y1": (1,), "yx": (3,), "yy": (4,), "yz": (5,),
                  "z1": (2,), "zx": (6,), "zy": (7,), "zz": (8,),}
         # ====================================================================
 
@@ -525,7 +543,7 @@ class Frame():
         # ====================================================================
 
         # Set offsets to 0 (default) or as specified in offsets-input
-        if offsets == None:
+        if offsets is None:
             idx1 = self._find_nearest(self._Offsets[spin1], 0)
             idx2 = self._find_nearest(self._Offsets[spin2], 0)
         elif spin1 in offsets.keys() and spin2 in offsets.keys():
@@ -581,7 +599,7 @@ class Frame():
                 share_all=True,
                 aspect=False)
 
-        for i in range(n): 
+        for i in range(n):
             ax[i].plot(X[i], Y[i], color='#80000f', lw=2.)
             ax[i].fill_between(X[i], Y[i], color='#cc000f')
             ax[i].set_ylabel("k(t)", rotation=0, size=14)
@@ -594,28 +612,30 @@ class Frame():
             L = "({}%)".format(AHT[i])
             ax[i].text(-0.1,0.31, L, size=12,transform=ax[i].transAxes, \
                        ha="center")
-        
+
         ax[n-1].set_xlabel("time / ms", fontsize=15)
         ax[0].set_xlim([X[i][0], X[i][-1]])
-        
+
         #plt.tight_layout()
 
-        if save != None: plt.savefig(save, dpi=300)
-        if show: plt.show()
+        if save is not None:
+            plt.savefig(save, dpi=300)
+        if show:
+            plt.show()
     # ====================================================================
 
 
-    def plot_H0_1D(self, interaction, fixedSpin, offset=0, \
+    def plot_H0_1D(self, interaction, fixed_spin, offset=0, \
                    save=None, show=True, **kwargs):
         """
         Plot the average Hamiltonian for specified interaction against
         the offset of one spin (1D).
 
         Args:
-            interaction (tuple): specify the interaction for which the 
+            interaction (tuple): specify the interaction for which the
               trajectory is supposed to be plotted.
 
-            fixedSpin (str): define the name of the spin in the interaction,
+            fixed_spin (str): define the name of the spin in the interaction,
               whose offset is fixed. The offset of the other spin is used as
               x-axis.
 
@@ -629,21 +649,21 @@ class Frame():
         """
 
         # Get index and retrieve data
-        idx = self._find_nearest(self._Offsets[fixedSpin], offset)
+        idx = self._find_nearest(self._Offsets[fixed_spin], offset)
         temp_all = self.get_results(interaction)
 
-        if interaction[0] == fixedSpin: 
+        if interaction[0] == fixed_spin:
             spinX = interaction[1]
             temp = temp_all[:, idx, :]
-        elif interaction[1] == fixedSpin: 
+        elif interaction[1] == fixed_spin:
             spinX = interaction[0]
             temp = temp_all[:, :, idx]
-        else: 
+        else:
             raise ValueError("Selected spin is not part of the interaction.")
-        
+
         X = self._Offsets[spinX] / 1000
         # ====================================================================
-        
+
 
         # Start plotting the graphs
         fig = plt.figure(figsize=(10, 8))
@@ -653,15 +673,15 @@ class Frame():
                 share_all=True,
                 aspect=False)
 
-        labels = [r"$2{}_x{}_x$".format(fixedSpin, spinX), 
-                  r"$2{}_x{}_y$".format(fixedSpin, spinX), 
-                  r"$2{}_x{}_z$".format(fixedSpin, spinX), 
-                  r"$2{}_y{}_x$".format(fixedSpin, spinX), 
-                  r"$2{}_y{}_y$".format(fixedSpin, spinX), 
-                  r"$2{}_y{}_z$".format(fixedSpin, spinX), 
-                  r"$2{}_z{}_x$".format(fixedSpin, spinX), 
-                  r"$2{}_z{}_y$".format(fixedSpin, spinX), 
-                  r"$2{}_z{}_z$".format(fixedSpin, spinX), 
+        labels = [r"$2{}_x{}_x$".format(fixed_spin, spinX),
+                  r"$2{}_x{}_y$".format(fixed_spin, spinX),
+                  r"$2{}_x{}_z$".format(fixed_spin, spinX),
+                  r"$2{}_y{}_x$".format(fixed_spin, spinX),
+                  r"$2{}_y{}_y$".format(fixed_spin, spinX),
+                  r"$2{}_y{}_z$".format(fixed_spin, spinX),
+                  r"$2{}_z{}_x$".format(fixed_spin, spinX),
+                  r"$2{}_z{}_y$".format(fixed_spin, spinX),
+                  r"$2{}_z{}_z$".format(fixed_spin, spinX),
                  ]
 
         for i in range(9):
@@ -669,7 +689,7 @@ class Frame():
             ax[i].plot(X, temp[i], lw=2.5, color="#1425a4", **kwargs)
             ax[i].text(0.05, 0.05, labels[i], transform=ax[i].transAxes, \
                        size = 20)
-        
+
         ax[0].set_xlim([X[0], X[-1]])
         ax[7].set_xlabel("offset (%s) / kHz" % spinX, size=15)
         ax[6].set_xlabel("offset (%s) / kHz" % spinX, size=15)
@@ -681,24 +701,26 @@ class Frame():
 
         #plt.tight_layout()
 
-        if save != None: plt.savefig(save, dpi=300)
-        if show: plt.show()
+        if save is not None:
+            plt.savefig(save, dpi=300)
+        if show:
+            plt.show()
     # ====================================================================
 
 
     def plot_H0_2D(self, interaction, levels=21, zlim=None, save=None, \
                    show=True):
-        """    
+        """
         Plot the average Hamiltonian for specified interaction against
         both offsets of spin1 and spin2 (2D).
 
         Args:
-            interaction (tuple): specify the interaction for which the 
+            interaction (tuple): specify the interaction for which the
               trajectory is supposed to be plotted.
 
             levels (int, optional): contour levels. Defaults to 21.
 
-            zlim (float, optional): limit for z-axis. 
+            zlim (float, optional): limit for z-axis.
             Defaults to None (choose z limit automatically).
 
             show (bool, optional): show figure. Defaults to True.
@@ -723,8 +745,10 @@ class Frame():
 
         X, Y = self._Offsets[spinX] / 1000, self._Offsets[spinY] / 1000
 
-        if zlim != None: vmax = zlim
-        else: vmax = np.max(np.abs(temp))
+        if zlim is not None:
+            vmax = zlim
+        else:
+            vmax = np.max(np.abs(temp))
         vals = np.linspace(-vmax, vmax, levels)
         # ====================================================================
 
@@ -741,22 +765,22 @@ class Frame():
                 cbar_pad=0.2,
                 aspect=False)
 
-        labels = [r"$2{}_x{}_x$".format(spinY, spinX), 
-                  r"$2{}_x{}_y$".format(spinY, spinX), 
-                  r"$2{}_x{}_z$".format(spinY, spinX), 
-                  r"$2{}_y{}_x$".format(spinY, spinX), 
-                  r"$2{}_y{}_y$".format(spinY, spinX), 
-                  r"$2{}_y{}_z$".format(spinY, spinX), 
-                  r"$2{}_z{}_x$".format(spinY, spinX), 
-                  r"$2{}_z{}_y$".format(spinY, spinX), 
-                  r"$2{}_z{}_z$".format(spinY, spinX), 
+        labels = [r"$2{}_x{}_x$".format(spinY, spinX),
+                  r"$2{}_x{}_y$".format(spinY, spinX),
+                  r"$2{}_x{}_z$".format(spinY, spinX),
+                  r"$2{}_y{}_x$".format(spinY, spinX),
+                  r"$2{}_y{}_y$".format(spinY, spinX),
+                  r"$2{}_y{}_z$".format(spinY, spinX),
+                  r"$2{}_z{}_x$".format(spinY, spinX),
+                  r"$2{}_z{}_y$".format(spinY, spinX),
+                  r"$2{}_z{}_z$".format(spinY, spinX),
                  ]
 
         for i in range(9):
             cb = ax[i].contourf(X, Y, temp[i], levels=vals, cmap=RWB)
             ax[i].text(0.05, 0.85, labels[i], transform=ax[i].transAxes, \
                        size = 20)
-        
+
         ax[7].set_xlabel("offset (%s) / kHz" % spinX, size=15)
         ax[6].set_xlabel("offset (%s) / kHz" % spinX, size=15)
         ax[8].set_xlabel("offset (%s) / kHz" % spinX, size=15)
@@ -764,26 +788,28 @@ class Frame():
         ax[0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
         ax[3].set_ylabel("offset (%s) / kHz" % spinY, size=15)
         ax[6].set_ylabel("offset (%s) / kHz" % spinY, size=15)
-        
+
         cbar1 = ax[2].cax.colorbar(cb)
         cbar2 = ax[5].cax.colorbar(cb)
         cbar3 = ax[8].cax.colorbar(cb)
 
-        cbar1.ax.set_yticks(np.linspace(-vmax, vmax, 11))
-        cbar2.ax.set_yticks(np.linspace(-vmax, vmax, 11))
-        cbar3.ax.set_yticks(np.linspace(-vmax, vmax, 11))
+        cbar1.ax.set_yticks(np.linspace(-1*vmax, vmax, 11))
+        cbar2.ax.set_yticks(np.linspace(-1*vmax, vmax, 11))
+        cbar3.ax.set_yticks(np.linspace(-1*vmax, vmax, 11))
 
         #plt.tight_layout()
 
-        if save != None: plt.savefig(save, dpi=300)
-        if show: plt.show()
+        if save is not None:
+            plt.savefig(save, dpi=300)
+        if show:
+            plt.show()
     # ====================================================================
 
 
 
 
     # ====================================================================
-    # 
+    #
     # PRIVATE METHODS
     #
     # ====================================================================
@@ -797,7 +823,7 @@ class Frame():
     mIm = np.array([[0,0],[1,0]], dtype="complex64")
     mIa = np.array([[1,0],[0,0]], dtype="complex64")
     mIb = np.array([[0,0],[0,1]], dtype="complex64")
-    
+
 
     def __init__(self, spins):
         """
@@ -829,7 +855,7 @@ class Frame():
 
         return B, traject
 
-     
+
     def _pulseHam(self, phase, amplitude):
         return 2*np.pi* (
                          np.cos(2*np.pi* phase/4.) * self.mIx + \
@@ -844,8 +870,8 @@ class Frame():
         return scalar.real
 
 
-    def _measure(self, B, traject, p):	
-        for i, h in enumerate(self._H): 
+    def _measure(self, B, traject, p):
+        for i, h in enumerate(self._H):
             traject[3*i+0, p] = self._scalarProduct( h, B[0] )
             traject[3*i+1, p] = self._scalarProduct( h, B[1] )
             traject[3*i+2, p] = self._scalarProduct( h, B[2] )
@@ -854,40 +880,41 @@ class Frame():
 
     @staticmethod
     def _propagate(B, U):
-        for i, b in enumerate(B): B[i] = U @ b @ U.T.conj()
+        for i, b in enumerate(B):
+            B[i] = U @ b @ U.T.conj()
         return B
-    
 
-    def _diffT(self, t):
+    @staticmethod
+    def _diffT(t):
         # turn timeseries to timesteps
         return t[1:] - t[:-1]
 
     @staticmethod
-    def _interH(A): 
+    def _interH(A):
         # interpolate time-dependent Hamiltonian (-> length is reduced by 1)
         return (A[:, 1:] + A[:, :-1]) / 2
 
     @staticmethod
-    def _interH1(A): 
+    def _interH1(A):
         # interpolate time-dependent Hamiltonian (-> length is reduced by 1)
-        return (A[1:] + A[:-1]) / 2	
+        return (A[1:] + A[:-1]) / 2
 
     @staticmethod
     def _integrate(dT, iH):
         A = np.zeros(9)
-        for i, h in enumerate(iH): 
-            A[i] = np.sum( np.multiply(h, dT) ) 
+        for i, h in enumerate(iH):
+            A[i] = np.sum( np.multiply(h, dT) )
         return A
 
     @staticmethod
     def _integrate1(dT, iH):
-        return np.sum( np.multiply(iH, dT) ) 
-    
+        return np.sum( np.multiply(iH, dT) )
+
     @staticmethod
     def _interpolate(t, A):
         out = np.zeros((10, len(t)))
 
-        for i in range(9): 
+        for i in range(9):
             out[i] = np.interp(t, A[-1], A[i])
         out[-1] = t
         return out
@@ -896,7 +923,7 @@ class Frame():
     def _calcPoints(self, spin, o):
         pts = 1
         for (*_, PTS) in self._Sequence:
-            if PTS["aligned"] == None or spin in PTS["aligned"]:
+            if PTS["aligned"] is None or spin in PTS["aligned"]:
                 pts += PTS[spin][o]
         return pts
 
@@ -909,7 +936,7 @@ class Frame():
         Zeeman = self._setZeeman(offset)
         timestep = length / int(pts)
         U = scla.expm(-1j * timestep * (self._pulseHam(phase, amplitude) + Zeeman) )
-        
+
         return U, timestep, pts
     # ====================================================================
 
@@ -922,7 +949,7 @@ class Frame():
         Zeeman = self._setZeeman(offset)
         timestep = length / int(pts)
         U = scla.expm(-1j * timestep * Zeeman )
-        
+
         return U, timestep, pts
     # ====================================================================
 
@@ -931,7 +958,7 @@ class Frame():
         # Frame._Transform() is called by Frame._simulate()
 
         # ====================================================================
-        for i in range(pts):
+        for _ in range(pts):
 
             # Propagate basis operators
             B = self._propagate(B, U)
@@ -939,7 +966,7 @@ class Frame():
             traject = self._measure(B, traject, p)
             traject[-1, p] = traject[-1, p-1] + timestep
             p += 1
-        
+
         return B, traject, p
     # ====================================================================
 
@@ -953,7 +980,7 @@ class Frame():
         Zeeman = self._setZeeman(offset)
         timestep = length / pts
         N = int(pts / len(shape))
-        if N != 1: print("N != 1  -> ", N )
+        #if N != 1: print("N != 1  -> ", N ) #extend single element in shape?
         # ====================================================================
 
         # return U, timestep, pts
@@ -963,7 +990,7 @@ class Frame():
             U = scla.expm(-1j * timestep * \
                           (self._pulseHam(pul[1]/90 + phase, \
                                           pul[0]/100 * amplitude) + Zeeman) )
-            for i in range(N):
+            for _ in range(N):
 
                 # Propagate basis operators
                 B = self._propagate(B, U)
@@ -971,7 +998,7 @@ class Frame():
                 traject = self._measure(B, traject, p)
                 traject[-1, p] = traject[-1, p-1] + timestep
                 p += 1
-        
+
         return B, traject, p
     # ====================================================================
 
@@ -991,7 +1018,7 @@ class Frame():
 
         for (action, *args) in self._Sequence:
             aligned = args[-1]["aligned"]
-            if aligned == None or spin in aligned:
+            if aligned is None or spin in aligned:
                 pts = args[-1][spin][index[1]]
 
             # Check if pulse is applied on current spin (index[0])
@@ -1000,66 +1027,66 @@ class Frame():
                 U, timestep, pts = self._Pulse(offset, *(args[1:-1]), pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
-            
+
             # If pulse is not applied on current spin -> use a delay
             # unless alignment is used!
             # args[-2] = length
-            elif action == "pulse" and aligned == None:
+            elif action == "pulse" and aligned is None:
                 U, timestep, pts = self._Delay(offset, args[-2], pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
 
             # Simulate a delay unless alignment is used!
             # "delay": args = (length, PTS)
-            if action == "delay" and aligned == None:
+            if action == "delay" and aligned is None:
                 U, timestep, pts = self._Delay(offset, args[0], pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
 
             # Using alignment (align = True)!
-            # Simulate an individual delay for the specified spin! 
+            # Simulate an individual delay for the specified spin!
             elif action == "delay" and spin in aligned:
                 U, timestep, pts = self._Delay(offset, args[0], pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
 
             # Simulate a shaped pulse
-            # "shape": args = (set(spins), shape, amplitude, phase, length, PTS)                                                   
+            # "shape": args = (set(spins), shape, amplitude, phase, length, PTS)
             if action == "shape" and spin in args[0]:
                 B, traject, p = self._Shape(B, traject, p, \
                                                offset, *(args[1:-1]), pts)
 
-            # If the spin is not in spins (args[0]) then simulate 
+            # If the spin is not in spins (args[0]) then simulate
             # a delay instead unless the alignment statement is used!
-            elif action == "shape" and aligned == None:
+            elif action == "shape" and aligned is None:
                 U, timestep, pts = self._Delay(offset, args[-2], pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
-                                                   timestep, pts)         
+                                                   timestep, pts)
             # ====================================================================
 
         if p != len(traject[-1]):
             print(" DIMENSION MIS-MATCH! ", p, len(traject[-1]))
-        
+
         self._Out[index] = traject
     # ====================================================================
 
 
     def _expandBasis(self, interaction, o1, o2):
-        # Frame._expandBasis() is called by Frame.start() 
+        # Frame._expandBasis() is called by Frame.start()
         # with and without multiprocessing
 
         # Interaction: (spin1, spin2, interactionType)
         spin1, spin2, iType = interaction
-        
+
         # ====================================================================
-        # Different timepoints and number of timepoints are calculated in 
-        # the two trajectories. This is due to the fact that less points 
+        # Different timepoints and number of timepoints are calculated in
+        # the two trajectories. This is due to the fact that less points
         # need to be calculated for slow osciallations, i.e. small offsets.
         # Interpolation is, hence, required before multiplication.
         T1 = self._Out[(spin1, o1)]
         T2 = self._Out[(spin2, o2)]
-        
-        # if round(T1[9][-1], 12) != round(T2[9][-1], 12): 
+
+        # if round(T1[9][-1], 12) != round(T2[9][-1], 12):
         #     print("WARNING: TIME-MISMATCH?")
 
         timeseries = np.sort(np.concatenate( [T1[9], T2[9]] ) )
@@ -1071,8 +1098,8 @@ class Frame():
 
         # ====================================================================
         # Prepare output
-        # Create time-dependent Hamiltonian in interaction frame (upper 
-        # case X,Y,Z) based on a (time-independent) coupling Hamiltonian 
+        # Create time-dependent Hamiltonian in interaction frame (upper
+        # case X,Y,Z) based on a (time-independent) coupling Hamiltonian
         # in rotating frame (lower case x,y,z).
         out = np.zeros((10, len(timeseries)))
         out[-1] = timeseries
@@ -1092,25 +1119,25 @@ class Frame():
             out[0] = X1z*X2z   # XX
             out[1] = X1z*Y2z   # XY
             out[2] = X1z*Z2z   # XZ
-            
+
             out[3] = Y1z*X2z   # YX
             out[4] = Y1z*Y2z   # YY
             out[5] = Y1z*Z2z   # YZ
-            
+
             out[6] = Z1z*X2z   # ZX
             out[7] = Z1z*Y2z   # ZY
             out[8] = Z1z*Z2z   # ZZ
 
         # scalar strong coupling
         elif iType == "Jstrong":
-            out[0] = X1z*X2z + X1y*X2y + X1x*X2x   # XX  
+            out[0] = X1z*X2z + X1y*X2y + X1x*X2x   # XX
             out[1] = X1z*Y2z + X1y*Y2y + X1x*Y2x   # XY
             out[2] = X1z*Z2z + X1y*Z2y + X1x*Z2x   # XZ
-                        
+
             out[3] = Y1z*X2z + Y1y*X2y + Y1x*X2x   # YX
             out[4] = Y1z*Y2z + Y1y*Y2y + Y1x*Y2x   # YY
             out[5] = Y1z*Z2z + Y1y*Z2y + Y1x*Z2x   # YZ
-                        
+
             out[6] = Z1z*X2z + Z1y*X2y + Z1x*X2x   # ZX
             out[7] = Z1z*Y2z + Z1y*Y2y + Z1x*Y2x   # ZY
             out[8] = Z1z*Z2z + Z1y*Z2y + Z1x*Z2x   # ZZ
@@ -1120,25 +1147,25 @@ class Frame():
             out[0] = 2*X1z*X2z   # XX
             out[1] = 2*X1z*Y2z   # XY
             out[2] = 2*X1z*Z2z   # XZ
-            
+
             out[3] = 2*Y1z*X2z   # YX
             out[4] = 2*Y1z*Y2z   # YY
             out[5] = 2*Y1z*Z2z   # YZ
-            
+
             out[6] = 2*Z1z*X2z   # ZX
             out[7] = 2*Z1z*Y2z   # ZY
             out[8] = 2*Z1z*Z2z   # ZZ
 
         # dipolar strong coupling
         elif iType == "Dstrong":
-            out[0] = 2*X1z*X2z - X1y*X2y - X1x*X2x   # XX  
+            out[0] = 2*X1z*X2z - X1y*X2y - X1x*X2x   # XX
             out[1] = 2*X1z*Y2z - X1y*Y2y - X1x*Y2x   # XY
             out[2] = 2*X1z*Z2z - X1y*Z2y - X1x*Z2x   # XZ
-                        
+
             out[3] = 2*Y1z*X2z - Y1y*X2y - Y1x*X2x   # YX
             out[4] = 2*Y1z*Y2z - Y1y*Y2y - Y1x*Y2x   # YY
             out[5] = 2*Y1z*Z2z - Y1y*Z2y - Y1x*Z2x   # YZ
-                        
+
             out[6] = 2*Z1z*X2z - Z1y*X2y - Z1x*X2x   # ZX
             out[7] = 2*Z1z*Y2z - Z1y*Y2y - Z1x*Y2x   # ZY
             out[8] = 2*Z1z*Z2z - Z1y*Z2y - Z1x*Z2x   # ZZ
@@ -1147,7 +1174,7 @@ class Frame():
         # ====================================================================
 
         # ====================================================================
-        # Calculation of zeroth order average Hamiltonian 
+        # Calculation of zeroth order average Hamiltonian
         T = timeseries[-1]
         dT = self._diffT(timeseries)
         iH = self._interH(out[:9])
@@ -1156,9 +1183,10 @@ class Frame():
     # ====================================================================
 
 
-    def _checkObjs(self, other1, other2):
+    @staticmethod
+    def _checkObjs(other1, other2):
         # ====================================================================
-        # Blockd elements must be specified for different spins!
+        # Block elements must be specified for different spins!
         # If not, raise Permission Error!
         temp1, temp2 = set(), set()
         time1, time2 = 0, 0
@@ -1178,26 +1206,10 @@ class Frame():
         if not temp1.isdisjoint(temp2):
             raise PermissionError("Cannot be aligned: \
             custom sequences must be specified for different spins!")
-        
+
         return time1, time2
     # ====================================================================
 
-
-    def _returnDelay(self, length):
-        # self._returnDelay() is called in self.align().
-        # Difference to self.delay is that a value is returned and not 
-        # appended to self._Sequence
-
-        # ====================================================================
-        # Set number of Points
-        PTS = {"aligned": self._SpinsBlock}
-        for spin in self._SpinsBlock:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * length
-            PTS[spin] = temp.astype("int") + 2
-
-        return ("delay", length, PTS) 
-    # ====================================================================
-    
 
     @staticmethod
     def _interpColors(V, Z, f):
@@ -1205,14 +1217,14 @@ class Frame():
     # ====================================================================
 
 
-    def _getColorMap(self, N):
-        
+    def _getColorMap(self, n):
+
         high = (20/255, 50/255, 180/255)
         zero = (1, 1, 1)
         low =  (160/255, 0, 0)
 
-        highs = [self._interpColors(high,zero,f) for f in np.linspace(0,1,N)]
-        lows = [self._interpColors(low, zero, f) for f in np.linspace(0,1,N)]
+        highs = [self._interpColors(high,zero,f) for f in np.linspace(0,1,n)]
+        lows = [self._interpColors(low, zero, f) for f in np.linspace(0,1,n)]
         colors = lows + highs[::-1]
 
         return ListedColormap(colors)
@@ -1224,11 +1236,5 @@ class Frame():
         return (np.abs(np.array(array) - value)).argmin()
     # ====================================================================
 
-
 # ====================================================================
 # ====================================================================
-
-
-
-
-

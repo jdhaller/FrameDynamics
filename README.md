@@ -54,7 +54,7 @@ frame.delay(tau)
 
 Start the simulations:
 ```Python
-frame.start(Traject=True)
+frame.start(traject=True)
 ```
 
 Plot the trajectories:
@@ -110,7 +110,7 @@ Align Reburp ("I") and hard pulse ("S") and start simulation without
 multiprocessing (MP=False):
 ```Python
 frame.align(block1, block2, alignment="center")
-frame.start(MP=False, Traject=True)
+frame.start(MP=False, traject=True)
 ```
 
 Create offset-dependent 2D graph that is plotted against both offsets:

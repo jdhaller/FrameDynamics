@@ -15,22 +15,21 @@ from FrameDynamics.Frame import Frame
 # ====================================================================
 
 class Block(Frame):
-    
+
     """
     The created objects can be used for alignment in the Frame class.
 
-    Args for init:    
+    Args for init:
         spins (list): specify all spins in a list (e.g. ["I", "J", "S])
           that are used in the given Block pulse sequence block.
-    
+
     Returns:
         Block-Object: can be passed to "align" method of Frame class.
-
     """
 
     def __init__(self, Frame_object, spins_in_block):
-        
-        if type(spins_in_block) != list:
+
+        if not isinstance(spins_in_block, list):
             raise AssertionError("Please define a list of spins\
             for the Block class (e.g. [\"H1\"]).")
 
@@ -89,17 +88,17 @@ class Block(Frame):
     # ====================================================================
 
 
-    def pulse(self, spins: list, degree: float, amplitude: float, 
+    def pulse(self, spins: list, degree: float, amplitude: float,
              phase: float):
 
         """
         Element for the creation of a pulse sequence.
-        A pulse can be defined with given rotation angle (degree), 
+        A pulse can be defined with given rotation angle (degree),
         rf amplitude (amplitude) and pulse phase (phase).
 
         Args:
-            spins (list): list containing the spins on which the pulse is 
-              applied (e.g. ["I", "J"])
+            spins (list): list containing the spins on which the pulse is
+            applied (e.g. ["I", "J"])
 
             degree (float): specifies rotation angle of pulse.
 
@@ -134,19 +133,19 @@ class Block(Frame):
     # ====================================================================
 
 
-    def shape(self, spins: list, shape: list, length:float, amplitude: float, 
+    def shape(self, spins: list, shape: list, length:float, amplitude: float,
              phase: float):
 
         """
         Element for the creation of a pulse sequence.
-        A shaped pulse (shape) can be defined with pulse length (length), 
-        rf amplitude (amplitude) and pulse phase (phase). 
+        A shaped pulse (shape) can be defined with pulse length (length),
+        rf amplitude (amplitude) and pulse phase (phase).
 
         Args:
-            spins (list): list containing the spins on which the pulse is 
+            spins (list): list containing the spins on which the pulse is
               applied (e.g. ["I", "J"])
 
-            shape (list): list containing all elements of the shaped pulse 
+            shape (list): list containing all elements of the shaped pulse
               (e.g. [[amp, ph], ... [amp, ph]]). The method "load_shape" can
               be used to read in a suitable file in Bruker format.
 
@@ -203,9 +202,20 @@ class Block(Frame):
     # ====================================================================
 
 
+    def _returnDelay(self, length):
+        # self._returnDelay() is called in self.align().
+        # Difference to self.delay is that a value is returned and not
+        # appended to self._Sequence
+
+        # ====================================================================
+        # Set number of Points
+        PTS = {"aligned": self._SpinsBlock}
+        for spin in self._SpinsBlock:
+            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * length
+            PTS[spin] = temp.astype("int") + 2
+
+        return ("delay", length, PTS)
+    # ====================================================================
+
 # ====================================================================
 # ====================================================================
-        
-
-
-
