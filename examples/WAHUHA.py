@@ -17,7 +17,7 @@ frame.pulse(["I", "J"], 90, 10**(5), 1)
 frame.delay(tau)
 frame.pulse(["I", "J"], 90, 10**(5), 2)
 frame.delay(tau)
-frame.start(traject=True)
+frame.start(MP=False, traject=True)
 
 # plotting
 frame.plot_traject(interaction, save="WAHUHA.png")

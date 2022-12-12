@@ -61,7 +61,7 @@ for _ in range(N):
     frame.delay( (tau+phcorr)/2 )
 
 # start simulation
-frame.start(traject=True)
+frame.start(MP=False, traject=True)
 
 # plotting 
 frame.plot_traject(interaction)

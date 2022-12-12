@@ -31,11 +31,13 @@ block2.pulse(["S"], 180, 10**(5), 1)
 
 # align Reburp ("I") and hard pulse ("S") and simulate 
 frame.align(block1, block2, alignment="center")
-frame.start(traject=True)
 
-# plotting
-frame.plot_H0_2D(interaction)
-frame.plot_H0_1D(interaction, "S", offset=0.)
-frame.plot_traject(interaction)
+if __name__ == "__main__":    # required in Windows for multiprocessing
+    frame.start(traject=True)
+
+    # plotting
+    frame.plot_H0_2D(interaction)
+    frame.plot_H0_1D(interaction, "S", offset=0.)
+    frame.plot_traject(interaction)
 
 
