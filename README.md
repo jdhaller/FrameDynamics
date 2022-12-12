@@ -52,14 +52,11 @@ frame.pulse(["I", "J"], 90, 10**(5), 2)
 frame.delay(tau)
 ``` 
 
-Start the simulations:
+Start the simulations and plot trajectories. Using multiprocessing, the scope has to be resolved in Windows.
 ```Python
-frame.start(traject=True)
-```
-
-Plot the trajectories:
-```Python
-frame.plot_traject(interaction, save="WAHUHA.png")
+if __name__ == "__main__":
+    frame.start(traject=True)
+    frame.plot_traject(interaction, save="WAHUHA.png")
 ```
 
 ## Example #2: Reburp pulse
