@@ -1122,7 +1122,6 @@ class Frame():
 
             # Simulate a shaped pulse
             if element.name == "shape" and spin in element.spins:
-                print(pts)
                 B, traject, p = self._Shape(B, traject, p, \
                                                offset, element, pts)
 
