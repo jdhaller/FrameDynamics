@@ -113,7 +113,7 @@ class Frame():
         """
         # ====================================================================
         element = Delay(length)
-        element.calcPTS(self._Offsets, self._Spins, self._PtsPerHz)
+        element.calcPTS(self._Offsets, self._Spins, self._PtsPerRot)
 
         self._Sequence.append( element )
     # ====================================================================
@@ -149,7 +149,7 @@ class Frame():
         length = 1 / amplitude * degree / 360
 
         element = Pulse(set(spins), length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._Spins, self._PtsPerHz)
+        element.calcPTS(self._Offsets, self._Spins, self._PtsPerRot)
 
         self._Sequence.append( element )
     # ====================================================================
@@ -186,7 +186,7 @@ class Frame():
             raise ValueError("Initiate Frame with given spin(s).")
 
         element = Shape(set(spins), shape, length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._Spins, self._PtsPerHz)
+        element.calcPTS(self._Offsets, self._Spins, self._PtsPerRot)
 
         self._Sequence.append( element )
     # ====================================================================
@@ -897,7 +897,7 @@ class Frame():
         self._Zeeman = np.zeros((2, 2), dtype="complex64")  # alloc
         self._H = (self.mIz, self.mIy, self.mIx)    # constant single-spin Ham
         self._Interactions = []     # List of considered interactions
-        self._PtsPerHz = 21         # How many points per oscillation
+        self._PtsPerRot = 21        # How many points per oscillation
         self._flagT = False         # Flag for trajectories
     # ====================================================================
 
@@ -982,14 +982,19 @@ class Frame():
 
     def _calcPoints(self, spin, o):
         pts = 1
-        for (*_, PTS) in self._Sequence:
-            if PTS["aligned"] is None or spin in PTS["aligned"]:
-                pts += PTS[spin][o]
+        for element in self._Sequence:
+            if element.PTS["aligned"] is None \
+            or spin in element.PTS["aligned"]:
+                pts += element.PTS[spin][o]
         return pts
 
 
-    def _Pulse(self, offset, amplitude, phase, length, pts):
+    def _Pulse(self, offset, element, pts):
         # Frame._Pulse() is called by Frame._simulate()
+
+        amplitude = element.amp
+        phase = element.phase
+        length = element.length
 
         # ====================================================================
         # Set Zeeman Hamiltonian according to offset
@@ -1031,9 +1036,12 @@ class Frame():
     # ====================================================================
 
 
-    def _Shape(self, B, traject, p, \
-               offset, shape, amplitude, phase, length, pts):
+    def _Shape(self, B, traject, p, offset, element, pts):
         # Frame._Shape() is called by Frame._simulate()
+        shape = element.shape
+        amplitude = element.amp
+        phase = element.phase
+        length = element.length
 
         # ====================================================================
         # Set Zeeman Hamiltonian according to offset
@@ -1075,51 +1083,53 @@ class Frame():
         # ====================================================================
         # Simulate Pulse Sequence in single-spin basis
         spin = index[0]
+        idx_off = index[1]
 
-        for (action, *args) in self._Sequence:
-            aligned = args[-1]["aligned"]
+        # loop over all elements in self._Sequence:
+        for element in self._Sequence:
+            aligned = element.PTS["aligned"]
             if aligned is None or spin in aligned:
-                pts = args[-1][spin][index[1]]
+                pts = element.PTS[spin][idx_off]
 
             # Check if pulse is applied on current spin (index[0])
             # "pulse": args = (set(spins), amplitude, phase, length, PTS)
-            if action == "pulse" and spin in args[0]:
-                U, timestep, pts = self._Pulse(offset, *(args[1:-1]), pts)
+            if element.name == "pulse" and spin in element.spins:
+                U, timestep, pts = self._Pulse(offset, element, pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
 
             # If pulse is not applied on current spin -> use a delay
             # unless alignment is used!
             # args[-2] = length
-            elif action == "pulse" and aligned is None:
-                U, timestep, pts = self._Delay(offset, args[-2], pts)
+            elif element.name == "pulse" and aligned is None:
+                U, timestep, pts = self._Delay(offset, element.length, pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
 
             # Simulate a delay unless alignment is used!
             # "delay": args = (length, PTS)
-            if action == "delay" and aligned is None:
-                U, timestep, pts = self._Delay(offset, args[0], pts)
+            if element.name == "delay" and aligned is None:
+                U, timestep, pts = self._Delay(offset, element.length, pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
 
             # Using alignment (align = True)!
             # Simulate an individual delay for the specified spin!
-            elif action == "delay" and spin in aligned:
-                U, timestep, pts = self._Delay(offset, args[0], pts)
+            elif element.name == "delay" and spin in aligned:
+                U, timestep, pts = self._Delay(offset, element.length, pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
 
             # Simulate a shaped pulse
-            # "shape": args = (set(spins), shape, amplitude, phase, length, PTS)
-            if action == "shape" and spin in args[0]:
+            if element.name == "shape" and spin in element.spins:
+                print(pts)
                 B, traject, p = self._Shape(B, traject, p, \
-                                               offset, *(args[1:-1]), pts)
+                                               offset, element, pts)
 
-            # If the spin is not in spins (args[0]) then simulate
+            # If the spin is not in element.spins then simulate
             # a delay instead unless the alignment statement is used!
-            elif action == "shape" and aligned is None:
-                U, timestep, pts = self._Delay(offset, args[-2], pts)
+            elif element.name == "shape" and aligned is None:
+                U, timestep, pts = self._Delay(offset, element.length, pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
             # ====================================================================
@@ -1278,7 +1288,7 @@ class Frame():
         Z corresponds to what is set to "zero"
         f is scaling factor
         """
-        
+
         return (V[0]+f*(Z[0]-V[0]), V[1]+f*(Z[1]-V[1]), V[2]+f*(Z[2]-V[2]) )
     # ====================================================================
 

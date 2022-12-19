@@ -40,7 +40,7 @@ class Block(Frame):
         self._Spins = Frame_object._Spins
         self._SpinsBlock = spins_in_block
         self._Offsets = Frame_object._Offsets
-        self._PtsPerHz = Frame_object._PtsPerHz
+        self._PtsPerRot = Frame_object._PtsPerRot
 
         self._Zeeman = Frame_object._Zeeman
         self._H = Frame_object._H
@@ -101,7 +101,7 @@ class Block(Frame):
 
         # create Delay-object
         element = Delay(length)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
                         aligned=self._SpinsBlock)
 
         self._Sequence.append( element )
@@ -141,7 +141,7 @@ class Block(Frame):
 
         # create Pulse-object
         element = Pulse(set(self._SpinsBlock), length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
                         aligned = self._SpinsBlock)
 
         self._Sequence.append( element )
@@ -182,7 +182,7 @@ class Block(Frame):
 
         # create Shape-object
         element = Shape(set(self._SpinsBlock), shape, length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
                         aligned = self._SpinsBlock)
 
         self._Sequence.append( element )
@@ -198,7 +198,7 @@ class Block(Frame):
         # ====================================================================
 
         element = Delay(length)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
                         aligned=self._SpinsBlock)
 
         return element

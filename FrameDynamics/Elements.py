@@ -14,7 +14,7 @@ class Elements(ABC):
         self.PTS = None
 
     @abstractmethod
-    def calcPTS(self, spins: List[str], offsets: dict, ptsPerHz: int):
+    def calcPTS(self, spins: list, offsets: dict, ptsPerRot: int):
         """ set _PTS dict """
 
 
@@ -27,11 +27,11 @@ class Delay(Elements):
     def __init__(self, length: float):
         super().__init__("delay", length)
     
-    def calcPTS(self, offsets: dict, _Spins: List[str], ptsPerHz: int, \
+    def calcPTS(self, offsets: dict, _Spins: list, ptsPerRot: int, \
                 aligned = None) -> None:
         self.PTS = {"aligned": aligned}
         for spin in _Spins:
-            temp = ptsPerHz * np.abs(offsets[spin]) * self.length
+            temp = ptsPerRot * np.abs(offsets[spin]) * self.length
             self.PTS[spin] = temp.astype("int") + 2
 
 
@@ -48,13 +48,13 @@ class Pulse(Elements):
         self.amp = amplitude
         self.phase = phase
     
-    def calcPTS(self, offsets: dict, _Spins: List[str], ptsPerHz: int, \
+    def calcPTS(self, offsets: dict, _Spins: list, ptsPerRot: int, \
                 aligned = None) -> None:
 
         self.PTS = {"aligned": aligned}
-        PtsOfPulse = int(ptsPerHz * self.amp * self.length) + 1
+        PtsOfPulse = int(ptsPerRot * self.amp * self.length) + 1
         for spin in _Spins:     # _Spins == all spins (even those w/o pulse)
-            temp = ptsPerHz * np.abs(offsets[spin]) * self.length
+            temp = ptsPerRot * np.abs(offsets[spin]) * self.length
             temp = temp.astype("int") + 1
             temp[ temp<PtsOfPulse ] = PtsOfPulse
             self.PTS[spin] = temp
@@ -65,7 +65,7 @@ class Shape(Elements):
     Inherits from abs. base class (Elements) with abs. method: calcPTS
     """
 
-    def __init__(self, spins: set, shape: List[float, float], length: float, \
+    def __init__(self, spins: set, shape: list, length: float, \
                  amplitude: float, phase: float):
         super().__init__("shape", length)
         self.spins = spins
@@ -73,14 +73,14 @@ class Shape(Elements):
         self.amp = amplitude
         self.phase = phase
     
-    def calcPTS(self, offsets: dict, _Spins: List[str], ptsPerHz: int, \
+    def calcPTS(self, offsets: dict, _Spins: list, ptsPerRot: int, \
                 aligned = None) -> None:
 
         timestep = self.length / len(self.shape)
         self.PTS = {"aligned": aligned}
-        PtsOfPulse = int(ptsPerHz * self.amp * timestep) + 1
+        PtsOfPulse = int(ptsPerRot * self.amp * timestep) + 1
         for spin in _Spins:     # _Spins == all spins (even those w/o pulse)
-            temp = ptsPerHz * np.abs(offsets[spin]) * timestep
+            temp = ptsPerRot * np.abs(offsets[spin]) * timestep
             temp = temp.astype("int") + 1
             temp[ temp<PtsOfPulse ] = PtsOfPulse
             self.PTS[spin] = temp
