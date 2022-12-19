@@ -16,6 +16,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import ImageGrid
 
+from FrameDynamics.Elements import Delay, Pulse, Shape
+
 
 # ====================================================================
 # ====================================================================
@@ -99,6 +101,24 @@ class Frame():
     # ====================================================================
 
 
+    def delay(self, length: float) -> None:
+
+        """
+        Element for the creation of a pulse sequence.
+        A delay can be defined with a duration / length (length).
+
+        Args:
+            length (float): the length of the delay given in seconds.
+
+        """
+        # ====================================================================
+        element = Delay(length)
+        element.calcPTS(self._Offsets, self._Spins, self._PtsPerHz)
+
+        self._Sequence.append( element )
+    # ====================================================================
+
+    
     def pulse(self, spins: list, degree: float, amplitude: float,
              phase: float) -> None:
 
@@ -128,17 +148,10 @@ class Frame():
 
         length = 1 / amplitude * degree / 360
 
-        # Set number of Points
-        PTS = {"aligned": None}
-        PtsOfPulse = int(self._PtsPerHz * amplitude * length) + 1
-        for spin in self._Spins:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * length
-            temp = temp.astype("int") + 1
-            temp[ temp<PtsOfPulse ] = PtsOfPulse
-            PTS[spin] = temp
+        element = Pulse(set(spins), length, amplitude, phase)
+        element.calcPTS(self._Offsets, self._Spins, self._PtsPerHz)
 
-        self._Sequence.append( ("pulse", set(spins), amplitude, \
-                               phase, length, PTS) )
+        self._Sequence.append( element )
     # ====================================================================
 
 
@@ -172,39 +185,9 @@ class Frame():
         if sum([True for spin in spins if not spin in self._Spins]):
             raise ValueError("Initiate Frame with given spin(s).")
 
-        # Set number of Points
-        PTS = {"aligned": None}
-        timestep = length / len(shape)
-        PtsOfPulse = int(self._PtsPerHz * amplitude * timestep) + 1
-        for spin in self._Spins:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * timestep
-            temp = temp.astype("int") + 1
-            temp[ temp<PtsOfPulse ] = PtsOfPulse
-            PTS[spin] = temp * len(shape)
+        element = Shape()
 
-        self._Sequence.append( ("shape", set(spins), shape, amplitude, \
-                               phase, length, PTS) )
-    # ====================================================================
-
-
-    def delay(self, length: float) -> None:
-
-        """
-        Element for the creation of a pulse sequence.
-        A delay can be defined with a duration / length (length).
-
-        Args:
-            length (float): the length of the delay given in seconds.
-
-        """
-        # ====================================================================
-        # Set number of Points
-        PTS = {"aligned": None}
-        for spin in self._Spins:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * length
-            PTS[spin] = temp.astype("int") + 2
-
-        self._Sequence.append( ("delay", length, PTS) )
+        self._Sequence.append( element )
     # ====================================================================
 
 

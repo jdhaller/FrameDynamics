@@ -8,7 +8,7 @@ Institution: Karlsruhe Institute of Technology
 
 import numpy as np
 from FrameDynamics.Frame import Frame
-
+from FrameDynamics.Elements import Delay, Pulse, Shape
 
 
 # ====================================================================
@@ -88,6 +88,26 @@ class Block(Frame):
     # ====================================================================
 
 
+    def delay(self, length):
+
+        """
+        Element for the creation of a pulse sequence.
+        A delay can be defined with a duration / length (length).
+
+        Args:
+            length (float): the length of the delay given in seconds.
+
+        """
+
+        # create Delay-object
+        element = Delay(length)
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+                        aligned=self._SpinsBlock)
+
+        self._Sequence.append( element )
+    # ====================================================================
+
+
     def pulse(self, spins: list, degree: float, amplitude: float,
              phase: float):
 
@@ -119,17 +139,12 @@ class Block(Frame):
 
         length = 1 / amplitude * degree / 360
 
-        # Set number of Points
-        PTS = {"aligned": self._SpinsBlock}
-        PtsOfPulse = int(self._PtsPerHz * amplitude * length) + 1
-        for spin in self._SpinsBlock:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * length
-            temp = temp.astype("int") + 1
-            temp[ temp<PtsOfPulse ] = PtsOfPulse
-            PTS[spin] = temp
+        # create Pulse-object
+        element = Pulse(set(self._SpinsBlock), length, amplitude, phase)
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+                        aligned = self._SpinsBlock)
 
-        self._Sequence.append( ("pulse", set(self._SpinsBlock), amplitude, \
-                               phase, length, PTS) )
+        self._Sequence.append( element )
     # ====================================================================
 
 
@@ -165,41 +180,14 @@ class Block(Frame):
             "than used py shape-method.\n",\
             "Spins defined in the shape() are ignored.")
 
-        # Set number of Points
-        PTS = {"aligned": self._SpinsBlock}
-        timestep = length / len(shape)
-        PtsOfPulse = int(self._PtsPerHz * amplitude * timestep) + 1
-        for spin in self._SpinsBlock:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * timestep
-            temp = temp.astype("int") + 1
-            temp[ temp<PtsOfPulse ] = PtsOfPulse
-            PTS[spin] = temp * len(shape)
+        # create Shape-object
+        element = Shape(set(self._SpinsBlock), shape, length, amplitude, phase)
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+                        aligned = self._SpinsBlock)
 
-        self._Sequence.append( ("shape", set(self._SpinsBlock), shape,\
-                                amplitude, phase, length, PTS) )
+        self._Sequence.append( element )
     # ====================================================================
 
-
-    def delay(self, length):
-
-        """
-        Element for the creation of a pulse sequence.
-        A delay can be defined with a duration / length (length).
-
-        Args:
-            length (float): the length of the delay given in seconds.
-
-        """
-
-        # ====================================================================
-        # Set number of Points
-        PTS = {"aligned": self._SpinsBlock}
-        for spin in self._SpinsBlock:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * length
-            PTS[spin] = temp.astype("int") + 2
-
-        self._Sequence.append( ("delay", length, PTS) )
-    # ====================================================================
 
 
     def _returnDelay(self, length):
