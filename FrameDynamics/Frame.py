@@ -1048,7 +1048,7 @@ class Frame():
         Zeeman = self._setZeeman(offset)
         timestep = length / pts
         N = int(pts / len(shape))
-        #if N != 1: print("N != 1  -> ", N ) #extend single element in shape?
+        if N != 1: print("N != 1  -> ", N ) #extend single element in shape?
         # ====================================================================
 
         # return U, timestep, pts
@@ -1132,7 +1132,7 @@ class Frame():
                 U, timestep, pts = self._Delay(offset, element.length, pts)
                 B, traject, p = self._Transform(U, B, traject, p, \
                                                    timestep, pts)
-            # ====================================================================
+        # ====================================================================
 
         if p != len(traject[-1]):
             print(" DIMENSION MIS-MATCH! ", p, len(traject[-1]))

@@ -83,7 +83,7 @@ class Shape(Elements):
             temp = ptsPerRot * np.abs(offsets[spin]) * timestep
             temp = temp.astype("int") + 1
             temp[ temp<PtsOfPulse ] = PtsOfPulse
-            self.PTS[spin] = temp
+            self.PTS[spin] = temp * len(self.shape)
 
 
 
