@@ -196,13 +196,12 @@ class Block(Frame):
         # appended to self._Sequence
 
         # ====================================================================
-        # Set number of Points
-        PTS = {"aligned": self._SpinsBlock}
-        for spin in self._SpinsBlock:
-            temp = self._PtsPerHz * np.abs(self._Offsets[spin]) * length
-            PTS[spin] = temp.astype("int") + 2
 
-        return ("delay", length, PTS)
+        element = Delay(length)
+        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerHz, \
+                        aligned=self._SpinsBlock)
+
+        return element
     # ====================================================================
 
 # ====================================================================

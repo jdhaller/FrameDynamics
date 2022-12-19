@@ -118,7 +118,7 @@ class Frame():
         self._Sequence.append( element )
     # ====================================================================
 
-    
+
     def pulse(self, spins: list, degree: float, amplitude: float,
              phase: float) -> None:
 
@@ -185,7 +185,8 @@ class Frame():
         if sum([True for spin in spins if not spin in self._Spins]):
             raise ValueError("Initiate Frame with given spin(s).")
 
-        element = Shape()
+        element = Shape(set(spins), shape, length, amplitude, phase)
+        element.calcPTS(self._Offsets, self._Spins, self._PtsPerHz)
 
         self._Sequence.append( element )
     # ====================================================================
@@ -300,7 +301,7 @@ class Frame():
 
 
     @classmethod
-    def load_shape2(cls, path_to_file: str, separator: str=" ", \
+    def load_shape_XY(cls, path_to_file: str, separator: str=" ", \
                 comment: str="#") -> list:
         """
         Load a pulse shape from file in xy-format.
@@ -1250,17 +1251,17 @@ class Frame():
         temp1, temp2 = set(), set()
         time1, time2 = 0, 0
 
-        for (action, *args) in other1._Sequence:
-            time1 += args[-2]
+        for element in other1._Sequence:
+            time1 += element.length
 
-            if action == "pulse" or action == "shape":
-                temp1.update(args[0])
+            if element.name == "pulse" or element.name == "shape":
+                temp1.update(element.spins)
 
-        for (action, *args) in other2._Sequence:
-            time2 += args[-2]
+        for element in other2._Sequence:
+            time2 += element.length
 
-            if action == "pulse" or action == "shape":
-                temp2.update(args[0])
+            if element.name == "pulse" or element.name == "shape":
+                temp2.update(element.spins)
 
         if not temp1.isdisjoint(temp2):
             raise PermissionError("Cannot be aligned: \
@@ -1272,6 +1273,12 @@ class Frame():
 
     @staticmethod
     def _interpColors(V, Z, f):
+        """ 
+        V corresponds to a value
+        Z corresponds to what is set to "zero"
+        f is scaling factor
+        """
+        
         return (V[0]+f*(Z[0]-V[0]), V[1]+f*(Z[1]-V[1]), V[2]+f*(Z[2]-V[2]) )
     # ====================================================================
 
