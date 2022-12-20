@@ -27,7 +27,7 @@ class Elements(ABC):
 
     def calcPTS(self, offsets: dict, _Spins: list, ptsPerRot: int) -> None:
         for spin in _Spins:
-            temp = np.sqrt(offsets[spin]**2 + self.amp**2)
+            temp = np.sqrt(np.array(offsets[spin])**2 + self.amp**2)
             temp *= (ptsPerRot * self.length)
             self.PTS[spin] = temp.astype("int") + 2
 
@@ -84,10 +84,10 @@ class Shape(Elements):
     
     def setPTS(self, offsets: dict, _Spins: list, ptsPerRot: int) -> None:
         timestep = self.length / len(self.shape)
-        PtsOfPulse = int(ptsPerRot * self.amp * timestep) + 1
         for spin in _Spins:     # _Spins == all spins (even those w/o pulse)
-            temp = ptsPerRot * np.abs(offsets[spin]) * timestep
+            temp = np.sqrt(np.array(offsets[spin])**2 + self.amp**2)
+            temp *= (ptsPerRot * timestep)
             temp = temp.astype("int") + 1
-            temp[ temp<PtsOfPulse ] = PtsOfPulse
             self.PTS[spin] = temp * len(self.shape)
     # ====================================================================
+

@@ -968,10 +968,9 @@ class Frame():
         Zeeman = self._setZeeman(offset)
         timestep = length / pts
         N = int(pts / len(shape))
-        if N != 1: print("N != 1  -> ", N ) #extend single element in shape?
+        # if N != 1: print("N != 1  -> ", N ) #extend single element in shape?
         # ====================================================================
 
-        # return U, timestep, pts
 
         # ====================================================================
         for pul in shape:
