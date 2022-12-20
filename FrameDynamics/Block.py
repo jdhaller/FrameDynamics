@@ -98,7 +98,7 @@ class Block(Frame):
         # create Delay-object
         element = Delay(length)
         element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
-        element.aligned=self._SpinsBlock
+        element.aligned = self._SpinsBlock
 
         self._Sequence.append( element )
     # ====================================================================
@@ -138,7 +138,7 @@ class Block(Frame):
         # create Pulse-object
         element = Pulse(set(self._SpinsBlock), length, amplitude, phase)
         element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
-        element.aligned=self._SpinsBlock
+        element.aligned = self._SpinsBlock
 
         self._Sequence.append( element )
     # ====================================================================
@@ -179,7 +179,7 @@ class Block(Frame):
         # create Shape-object
         element = Shape(set(self._SpinsBlock), shape, length, amplitude, phase)
         element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
-        element.aligned=self._SpinsBlock
+        element.aligned = self._SpinsBlock
 
         self._Sequence.append( element )
     # ====================================================================
@@ -195,7 +195,7 @@ class Block(Frame):
 
         element = Delay(length)
         element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
-        element.aligned=self._SpinsBlock
+        element.aligned = self._SpinsBlock
 
         return element
     # ====================================================================
