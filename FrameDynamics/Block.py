@@ -1,5 +1,5 @@
 """
-Date: 2022/08
+Date: 2022/12
 Author: Jens D. Haller
 Mail: jens.haller@kit.edu / jhaller@gmx.de
 Institution: Karlsruhe Institute of Technology
@@ -9,10 +9,6 @@ Institution: Karlsruhe Institute of Technology
 import numpy as np
 from FrameDynamics.Frame import Frame
 from FrameDynamics.Elements import Delay, Pulse, Shape
-
-
-# ====================================================================
-# ====================================================================
 
 class Block(Frame):
 
@@ -101,8 +97,8 @@ class Block(Frame):
 
         # create Delay-object
         element = Delay(length)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
-                        aligned=self._SpinsBlock)
+        element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
+        element.aligned=self._SpinsBlock
 
         self._Sequence.append( element )
     # ====================================================================
@@ -141,8 +137,8 @@ class Block(Frame):
 
         # create Pulse-object
         element = Pulse(set(self._SpinsBlock), length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
-                        aligned = self._SpinsBlock)
+        element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
+        element.aligned=self._SpinsBlock
 
         self._Sequence.append( element )
     # ====================================================================
@@ -182,8 +178,8 @@ class Block(Frame):
 
         # create Shape-object
         element = Shape(set(self._SpinsBlock), shape, length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
-                        aligned = self._SpinsBlock)
+        element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
+        element.aligned=self._SpinsBlock
 
         self._Sequence.append( element )
     # ====================================================================
@@ -198,11 +194,10 @@ class Block(Frame):
         # ====================================================================
 
         element = Delay(length)
-        element.calcPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot, \
-                        aligned=self._SpinsBlock)
+        element.setPTS(self._Offsets, self._SpinsBlock, self._PtsPerRot)
+        element.aligned=self._SpinsBlock
 
         return element
     # ====================================================================
 
-# ====================================================================
-# ====================================================================
+

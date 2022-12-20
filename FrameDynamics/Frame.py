@@ -1,5 +1,5 @@
 """
-Date: 2022/08
+Date: 2022/12
 Author: Jens D. Haller
 Mail: jens.haller@kit.edu / jhaller@gmx.de
 Institution: Karlsruhe Institute of Technology
@@ -113,7 +113,7 @@ class Frame():
         """
         # ====================================================================
         element = Delay(length)
-        element.calcPTS(self._Offsets, self._Spins, self._PtsPerRot)
+        element.setPTS(self._Offsets, self._Spins, self._PtsPerRot)
 
         self._Sequence.append( element )
     # ====================================================================
@@ -149,7 +149,7 @@ class Frame():
         length = 1 / amplitude * degree / 360
 
         element = Pulse(set(spins), length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._Spins, self._PtsPerRot)
+        element.setPTS(self._Offsets, self._Spins, self._PtsPerRot)
 
         self._Sequence.append( element )
     # ====================================================================
@@ -186,7 +186,7 @@ class Frame():
             raise ValueError("Initiate Frame with given spin(s).")
 
         element = Shape(set(spins), shape, length, amplitude, phase)
-        element.calcPTS(self._Offsets, self._Spins, self._PtsPerRot)
+        element.setPTS(self._Offsets, self._Spins, self._PtsPerRot)
 
         self._Sequence.append( element )
     # ====================================================================
@@ -212,7 +212,7 @@ class Frame():
         """
 
         t1, t2 = self._checkObjs(other1, other2)
-        D = t2 - t1
+        D = np.abs(t2 - t1)
 
         # ====================================================================
         # Extend the shorter sequence by delays according to the alignment
@@ -223,21 +223,21 @@ class Frame():
                 if t1 < t2:
                     other1._Sequence.append(other1._returnDelay(D))
                 else:
-                    other2._Sequence.append(other2._returnDelay(-1*D))
+                    other2._Sequence.append(other2._returnDelay(D))
 
             elif alignment == "right":
                 if t1 < t2:
                     other1._Sequence.insert(0, other1._returnDelay(D))
                 else:
-                    other2._Sequence.insert(0, other2._returnDelay(-1*D) )
+                    other2._Sequence.insert(0, other2._returnDelay(D) )
 
             elif alignment == "center":
                 if t1 < t2:
                     other1._Sequence.insert(0, other1._returnDelay(D/2) )
                     other1._Sequence.append( other1._returnDelay(D/2) )
                 else:
-                    other2._Sequence.insert(0, other2._returnDelay(-1*D/2) )
-                    other2._Sequence.append( other2._returnDelay(-1*D/2) )
+                    other2._Sequence.insert(0, other2._returnDelay(D/2) )
+                    other2._Sequence.append( other2._returnDelay(D/2) )
         # ====================================================================
 
         for seq in other1._Sequence:
@@ -983,8 +983,8 @@ class Frame():
     def _calcPoints(self, spin, o):
         pts = 1
         for element in self._Sequence:
-            if element.PTS["aligned"] is None \
-            or spin in element.PTS["aligned"]:
+            if element.aligned is None \
+            or spin in element.aligned:
                 pts += element.PTS[spin][o]
         return pts
 
@@ -1087,7 +1087,7 @@ class Frame():
 
         # loop over all elements in self._Sequence:
         for element in self._Sequence:
-            aligned = element.PTS["aligned"]
+            aligned = element.aligned
             if aligned is None or spin in aligned:
                 pts = element.PTS[spin][idx_off]
 

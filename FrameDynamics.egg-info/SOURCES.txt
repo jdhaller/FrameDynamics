@@ -2,6 +2,7 @@ LICENSE
 README.md
 setup.py
 FrameDynamics/Block.py
+FrameDynamics/Elements.py
 FrameDynamics/Frame.py
 FrameDynamics/__init__.py
 FrameDynamics.egg-info/PKG-INFO
