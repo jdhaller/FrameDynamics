@@ -553,19 +553,16 @@ class Frame():
         for i in range(n):
             if operators[i][0] == "1":
                 X[i] = self._Out.get((spin2, idx2))[-1] * 1000
-                # X[i] *= 1000
                 Y[i] = self._Out.get((spin2, idx2))[index[operators[i]]]
                 labels[i] = "${}_{}$".format(spin2, operators[i][1])
             elif operators[i][1] == "1":
                 X[i] = self._Out.get((spin1, idx1))[-1] * 1000
-                # X[i] *= 1000
                 Y[i] = self._Out.get((spin1, idx1))[index[operators[i]]]
                 labels[i] = "${}_{}$".format(spin1, operators[i][0])
             else:
                 X[i] = self._Traject.get(\
                     (interaction, idx1, idx2)\
                                         )[-1] * 1000
-                # X[i] *= 1000
                 Y[i] = self._Traject.get(\
                     (interaction, idx1, idx2)\
                                         )[index[operators[i]]]
