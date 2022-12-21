@@ -291,10 +291,10 @@ class Frame():
                     other2._Sequence.append( other2._returnDelay(D/2) )
         # ====================================================================
 
-        for seq in other1._Sequence:
-            self._Sequence.append( seq )
-        for seq in other2._Sequence:
-            self._Sequence.append( seq )
+        for element in other1._Sequence:
+            self._Sequence.append( element )
+        for element in other2._Sequence:
+            self._Sequence.append( element )
     # ====================================================================
 
 
@@ -820,6 +820,10 @@ class Frame():
         self._PtsPerRot = 21        # How many points per oscillation
         self._flagT = False         # Flag for trajectories
     # ====================================================================
+
+
+    def __version__(self):
+        print("FrameDynamics version: 1.1.6")
 
 
     def _setZeeman(self, offset):

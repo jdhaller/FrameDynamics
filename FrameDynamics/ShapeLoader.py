@@ -16,7 +16,6 @@ class ShapeLoader():
     def load_amp_phase(cls, path_to_file: str, separator: str, \
                        start: str, end: str) -> list:
 
-        print(path_to_file)
         data = []
 
         with open(path_to_file, 'r') as tmp:
