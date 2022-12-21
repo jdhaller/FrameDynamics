@@ -12,12 +12,9 @@ import time
 import numpy as np
 import scipy.linalg as scla
 
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-from mpl_toolkits.axes_grid1 import ImageGrid
-
 from FrameDynamics.Elements import Delay, Pulse, Shape
 from FrameDynamics.ShapeLoader import ShapeLoader
+from FrameDynamics.Plotter import Grid, Subplot
 
 
 # ====================================================================
@@ -486,8 +483,8 @@ class Frame():
 
     def plot_traject(self, interaction: tuple, \
                     operators: tuple=("x1","y1","z1","xx","yy","zz"), \
-                    offsets: dict=None, save: str=None, show: bool=True) \
-                    -> None:
+                    offsets: dict=None, save: str=None, dpi:int = 300, \
+                    show: bool=True) -> None:
         """
         Plot trajectory of Hamiltonian in the toggling / interaction frame.
 
@@ -555,20 +552,20 @@ class Frame():
         # self._Traject (bilinear operators) for plotting
         for i in range(n):
             if operators[i][0] == "1":
-                X[i] = self._Out.get((spin2, idx2))[-1]
-                X[i] *= 1000
+                X[i] = self._Out.get((spin2, idx2))[-1] * 1000
+                # X[i] *= 1000
                 Y[i] = self._Out.get((spin2, idx2))[index[operators[i]]]
                 labels[i] = "${}_{}$".format(spin2, operators[i][1])
             elif operators[i][1] == "1":
-                X[i] = self._Out.get((spin1, idx1))[-1]
-                X[i] *= 1000
+                X[i] = self._Out.get((spin1, idx1))[-1] * 1000
+                # X[i] *= 1000
                 Y[i] = self._Out.get((spin1, idx1))[index[operators[i]]]
                 labels[i] = "${}_{}$".format(spin1, operators[i][0])
             else:
                 X[i] = self._Traject.get(\
                     (interaction, idx1, idx2)\
-                                        )[-1]
-                X[i] *= 1000
+                                        )[-1] * 1000
+                # X[i] *= 1000
                 Y[i] = self._Traject.get(\
                     (interaction, idx1, idx2)\
                                         )[index[operators[i]]]
@@ -585,43 +582,24 @@ class Frame():
             AHT[i] = round(self._integrate1(dT, iH) / T * 100, 1)
         # ====================================================================
 
-        # Start plotting the graphs
-        fig = plt.figure(figsize=(10, 0.5+n*1.5))
-        ax = ImageGrid(fig, 111,          # as in plt.subplot(111)
-                nrows_ncols=(n,1),
-                axes_pad=0.23,
-                share_all=True,
-                aspect=False)
-
-        for i in range(n):
-            ax[i].plot(X[i], Y[i], color='#80000f', lw=2.)
-            ax[i].fill_between(X[i], Y[i], color='#cc000f')
-            ax[i].set_ylabel("k(t)", rotation=0, size=14)
-            ax[i].yaxis.set_label_coords(-0.05,0.85)
-            ax[i].plot([X[i][0],X[i][-1]],[1,1],"k--",lw=0.5)
-            ax[i].plot([X[i][0],X[i][-1]],[0,0],"k",lw=1)
-            ax[i].plot([X[i][0],X[i][-1]],[-1,-1],"k--",lw=0.5)
-            ax[i].text(-0.1,0.5,labels[i],size=18,transform=ax[i].transAxes,\
-                       ha="center")
-            L = "({}%)".format(AHT[i])
-            ax[i].text(-0.1,0.31, L, size=12,transform=ax[i].transAxes, \
-                       ha="center")
-
-        ax[n-1].set_xlabel("time / ms", fontsize=15)
-        ax[0].set_xlim([X[i][0], X[i][-1]])
-
-        #plt.tight_layout()
+        # create Grid object for plotting
+        grid = Grid(n)
+        grid.plot1D(X, Y)
+        grid.set_labels(labels, AHT)
+        grid.set_xaxis("time / ms")
 
         if save is not None:
-            plt.savefig(save, dpi=300)
+            grid.save(save, dpi=dpi)
         if show:
-            plt.show()
+            grid.show()
+        
+        grid.close()
     # ====================================================================
 
-
+    
     def plot_H0_1D(self, interaction: tuple, fixed_spin: str, \
-                 offset: float=0, save: str=None, show: bool=True, **kwargs) \
-                 -> None:
+                   offset: float=0, save: str=None, dpi: int=300,
+                   show: bool=True, **kwargs) -> None:
         """
         Plot the average Hamiltonian for specified interaction against
         the offset of one spin (1D).
@@ -649,59 +627,35 @@ class Frame():
 
         if interaction[0] == fixed_spin:
             spinX = interaction[1]
-            temp = temp_all[:, idx, :]
+            Y = temp_all[:, idx, :]
         elif interaction[1] == fixed_spin:
             spinX = interaction[0]
-            temp = temp_all[:, :, idx]
+            Y = temp_all[:, :, idx]
         else:
             raise ValueError("Selected spin is not part of the interaction.")
-
+        
         X = self._Offsets[spinX] / 1000
         # ====================================================================
 
-
-        # Start plotting the graphs
-        fig, ax = plt.subplots(3, 3, figsize=(10, 9), sharex=True, \
-                                         sharey=True, constrained_layout=True)
-
-        labels = [r"$2{}_x{}_x$".format(fixed_spin, spinX),
-                  r"$2{}_x{}_y$".format(fixed_spin, spinX),
-                  r"$2{}_x{}_z$".format(fixed_spin, spinX),
-                  r"$2{}_y{}_x$".format(fixed_spin, spinX),
-                  r"$2{}_y{}_y$".format(fixed_spin, spinX),
-                  r"$2{}_y{}_z$".format(fixed_spin, spinX),
-                  r"$2{}_z{}_x$".format(fixed_spin, spinX),
-                  r"$2{}_z{}_y$".format(fixed_spin, spinX),
-                  r"$2{}_z{}_z$".format(fixed_spin, spinX),
-                 ]
-
-        for i in range(9):
-            ax[i//3, i%3].plot([X[0], X[-1]], [0, 0], "k--", lw=1)
-            ax[i//3, i%3].plot(X, temp[i], lw=2.5, color="#1425a4", **kwargs)
-            ax[i//3, i%3].text(0.05, 0.85, labels[i], \
-                                transform=ax[i//3, i%3].transAxes, size = 20)
-
-        ax[0,0].set_xlim([X[0], X[-1]])
-        ax[2,0].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[2,1].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[2,2].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-
-        ax[0,0].set_ylabel("$k_0$ / a. u.", size=15)
-        ax[1,0].set_ylabel("$k_0$ / a. u.", size=15)
-        ax[2,0].set_ylabel("$k_0$ / a. u.", size=15)
-
-        fig.set_constrained_layout_pads(w_pad=0.025, h_pad=0.025,
-            hspace=0.025, wspace=0.025)
+        # create Subplot object for plotting
+        sub = Subplot(fixed_spin, spinX)
+        sub.plot1D(X, Y, **kwargs)
+        sub.set_xaxis("offset (%s) / kHz" % spinX)
+        sub.set_yaxis("$k_0$ / a. u.")
+        sub.constrainedLayout()
 
         if save is not None:
-            plt.savefig(save, dpi=300)
+            sub.save(save, dpi=dpi)
         if show:
-            plt.show()
+            sub.show()
+        
+        sub.close()
     # ====================================================================
 
 
     def plot_H0_2D(self, interaction: tuple, levels: int=21, \
-                   zlim: float=None, save: str=None, show: bool=True) -> None:
+                   zlim: float=None, save: str=None, dpi:int=300, \
+                   show: bool=True) -> None:
         """
         Plot the average Hamiltonian for specified interaction against
         both offsets of spin1 and spin2 (2D).
@@ -729,60 +683,32 @@ class Frame():
 
         """
 
-        # Create colormap and retrieve data for plotting
-        RWB = self._getColorMap(levels-1)
-
         spinY, spinX = interaction[0], interaction[1]
-        temp = self.get_results(interaction)
 
-        X, Y = self._Offsets[spinX] / 1000, self._Offsets[spinY] / 1000
+        X = self._Offsets[spinX] / 1000
+        Y = self._Offsets[spinY] / 1000
+        Z = self.get_results(interaction)
 
         if zlim is not None:
             vmax = zlim
         else:
-            vmax = np.max(np.abs(temp))
+            vmax = np.max(np.abs(Z))
         vals = np.linspace(-1*vmax, vmax, levels)
         # ====================================================================
 
-        # Start plotting the graphs
-        fig, ax = plt.subplots(3, 3, figsize=(10, 9), sharex=True, \
-                                         sharey=True, constrained_layout=True)
-
-        labels = [r"$2{}_x{}_x$".format(spinY, spinX),
-                  r"$2{}_x{}_y$".format(spinY, spinX),
-                  r"$2{}_x{}_z$".format(spinY, spinX),
-                  r"$2{}_y{}_x$".format(spinY, spinX),
-                  r"$2{}_y{}_y$".format(spinY, spinX),
-                  r"$2{}_y{}_z$".format(spinY, spinX),
-                  r"$2{}_z{}_x$".format(spinY, spinX),
-                  r"$2{}_z{}_y$".format(spinY, spinX),
-                  r"$2{}_z{}_z$".format(spinY, spinX),
-                 ]
-
-        for i in range(9):
-            cb = ax[i//3, i%3].contourf(X, Y, temp[i], levels=vals, cmap=RWB)
-            ax[i//3, i%3].text(0.05, 0.85, labels[i], \
-                                transform=ax[i//3, i%3].transAxes, size = 20)
-
-        ax[2,0].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[2,1].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-        ax[2,2].set_xlabel("offset (%s) / kHz" % spinX, size=15)
-
-        ax[0,0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
-        ax[1,0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
-        ax[2,0].set_ylabel("offset (%s) / kHz" % spinY, size=15)
-
-        fig.colorbar(cb, ax=ax[0,2])
-        fig.colorbar(cb, ax=ax[1,2])
-        fig.colorbar(cb, ax=ax[2,2])
-
-        fig.set_constrained_layout_pads(w_pad=0.025, h_pad=0.025,
-            hspace=0.025, wspace=0.025)
+        # create Subplot object for plotting
+        sub = Subplot(spinY, spinX)
+        sub.plot2D(X, Y, Z, vals, levels)
+        sub.set_xaxis("offset (%s) / kHz" % spinX)
+        sub.set_yaxis("offset (%s) / kHz" % spinY)
+        sub.constrainedLayout()
 
         if save is not None:
-            plt.savefig(save, dpi=300)
+            sub.save(save, dpi=dpi)
         if show:
-            plt.show()
+            sub.show()
+        
+        sub.close()
     # ====================================================================
 
 
@@ -1200,32 +1126,6 @@ class Frame():
             custom sequences must be specified for different spins!")
 
         return time1, time2
-    # ====================================================================
-
-
-    @staticmethod
-    def _interpColors(V, Z, f):
-        """ 
-        V corresponds to a value
-        Z corresponds to what is set to "zero"
-        f is scaling factor
-        """
-
-        return (V[0]+f*(Z[0]-V[0]), V[1]+f*(Z[1]-V[1]), V[2]+f*(Z[2]-V[2]) )
-    # ====================================================================
-
-
-    def _getColorMap(self, n):
-
-        high = (20/255, 50/255, 180/255)
-        zero = (1, 1, 1)
-        low =  (160/255, 0, 0)
-
-        highs = [self._interpColors(high,zero,f) for f in np.linspace(0,1,n)]
-        lows = [self._interpColors(low, zero, f) for f in np.linspace(0,1,n)]
-        colors = lows + highs[::-1]
-
-        return ListedColormap(colors)
     # ====================================================================
 
 
