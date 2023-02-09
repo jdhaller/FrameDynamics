@@ -9,7 +9,7 @@ interaction = frame.set_interaction("I", "J", "Dstrong")
 # define pulse sequence and simulate
 tau = 5 * 10**(-5)
 frame.delay(tau)
-frame.pulse(["I", "J"], 90, 10**(5), 0)
+frame.pulse(["I", "J"], degree=90, amplitude=10**(5), phase=0)
 frame.delay(tau)
 frame.pulse(["I", "J"], 90, 10**(5), 3)
 frame.delay(2*tau)

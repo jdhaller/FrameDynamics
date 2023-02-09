@@ -26,7 +26,7 @@ block1 = Block(frame, ["I"])
 block2 = Block(frame, ["S"])
 
 # define a Reburp pulse on "I" and hard pulse on "S"
-block1.shape(["I"], Reburp, 1000*10**(-6), 6264.8, 1)
+block1.shape(["I"], Reburp, length=1000*10**(-6), amplitude=6264.8, phase=1)
 block2.pulse(["S"], 180, 10**(5), 1)
 
 # align Reburp ("I") and hard pulse ("S") and simulate 

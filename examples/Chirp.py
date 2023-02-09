@@ -20,7 +20,7 @@ frame.set_offset("J", offsetsS)
 Chirp = frame.load_shape("SmCrp_BW50_RF9403_720u")
 
 # simulate chirp pulse
-frame.shape(["I", "J"], Chirp, 720*10**(-6), 9403, 1) 
+frame.shape(["I", "J"], Chirp, length=720*10**(-6), amplitude=9403, phase=1) 
 
 if __name__ == "__main__":    # required in Windows for multiprocessing
     frame.start(traject=True)

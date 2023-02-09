@@ -18,7 +18,7 @@ frame.set_offset("I", offsets1)
 frame.set_offset("S", offsets2)
 
 # define pulse sequence and simulate
-frame.pulse(["I", "S"], 90, 10**(4), 0)
+frame.pulse(["I", "S"], degree=90, amplitude=10**(4), phase=0)
 frame.delay(0.005)
 frame.pulse(["I", "S"], 180, 10**(4), 1)
 frame.delay(0.005)

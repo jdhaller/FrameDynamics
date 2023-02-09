@@ -42,7 +42,7 @@ Define the pulse sequence:
 ```Python
 tau = 5 * 10**(-5)
 frame.delay(tau)
-frame.pulse(["I", "J"], 90, 10**(5), 0)
+frame.pulse(["I", "J"], degree=90, amplitude=10**(5), phase=0)
 frame.delay(tau)
 frame.pulse(["I", "J"], 90, 10**(5), 3)
 frame.delay(2*tau)
@@ -99,7 +99,7 @@ block2 = Block(frame, ["S"])
 
 Define a Reburp pulse on "I" and hard pulse on "S":
 ```Python
-block1.shape(["I"], Reburp, 1000*10**(-6), 6264.8, 1)
+block1.shape(["I"], Reburp, length=1000*10**(-6), amplitude=6264.8, phase=1)
 block2.pulse(["S"], 180, 10**(5), 1)
 ```
 
