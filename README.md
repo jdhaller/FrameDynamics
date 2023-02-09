@@ -132,6 +132,6 @@ frame.plot_traject(interaction, operators=["x1","y1","z1","xx","yy","zz"])
 
 Retrieve trajectories and the resulting average Hamiltonian as dictionaries:
 ```Python
-    time, traject = frame.get_traject(interaction, offsets={"I": 0, "S": 300}, operators=["1z", "zz"])
-    average_Hamiltonian = frame.get_results(interaction, operators=["zz"])
+time, traject = frame.get_traject(interaction, offsets={"I": 0, "S": 300}, operators=["1z", "zz"])
+average_Hamiltonian = frame.get_results(interaction, operators=["zz"])
 ```
