@@ -40,8 +40,8 @@ if __name__ == "__main__":    # required in Windows for multiprocessing
     frame.plot_traject(interaction2, offsets={"I": 0, "S": 300})
 
     # read results and bilinear trajectories as dict-like objects
-    results = frame.get_results()
-    traject = frame.get_traject()
-
-
-
+    time, traject = frame.get_traject(interaction2,
+                                      offsets={"I": 0, "S": 300},
+                                      operators=["1x", "xx"])
+    average_Hamiltonian = frame.get_results(interaction2)
+    

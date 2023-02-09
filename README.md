@@ -44,11 +44,11 @@ tau = 5 * 10**(-5)
 frame.delay(tau)
 frame.pulse(["I", "J"], degree=90, amplitude=10**(5), phase=0)
 frame.delay(tau)
-frame.pulse(["I", "J"], 90, 10**(5), 3)
+frame.pulse(["I", "J"], degree=90, amplitude=10**(5), phase=3)
 frame.delay(2*tau)
-frame.pulse(["I", "J"], 90, 10**(5), 1)
+frame.pulse(["I", "J"], degree=90, amplitude=10**(5), phase=1)
 frame.delay(tau)
-frame.pulse(["I", "J"], 90, 10**(5), 2)
+frame.pulse(["I", "J"], degree=90, amplitude=10**(5), phase=2)
 frame.delay(tau)
 ``` 
 
@@ -100,11 +100,11 @@ block2 = Block(frame, ["S"])
 Define a Reburp pulse on "I" and hard pulse on "S":
 ```Python
 block1.shape(["I"], Reburp, length=1000*10**(-6), amplitude=6264.8, phase=1)
-block2.pulse(["S"], 180, 10**(5), 1)
+block2.pulse(["S"], degree=180, amplitude=10000, phase=1)
 ```
 
-Align Reburp ("I") and hard pulse ("S") and start simulation without 
-multiprocessing (MP=False):
+Align Reburp ("I") and hard pulse ("S") and start simulation (here without 
+multiprocessing, MP=False):
 ```Python
 frame.align(block1, block2, alignment="center")
 frame.start(MP=False, traject=True)
@@ -125,3 +125,13 @@ Plot trajectories for specified interaction and operators (the given operators a
 frame.plot_traject(interaction, operators=["x1","y1","z1","xx","yy","zz"])
 ```
 
+Plot trajectories for specified interaction and operators (the given operators are default values). 
+```Python
+frame.plot_traject(interaction, operators=["x1","y1","z1","xx","yy","zz"])
+```
+
+Retrieve trajectories and the resulting average Hamiltonian as dictionaries:
+```Python
+    time, traject = frame.get_traject(interaction, offsets={"I": 0, "S": 300}, operators=["1z", "zz"])
+    average_Hamiltonian = frame.get_results(interaction, operators=["zz"])
+```

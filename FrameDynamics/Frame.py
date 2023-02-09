@@ -418,66 +418,134 @@ class Frame():
     # ====================================================================
 
 
-    def get_results(self, returns: tuple=None) -> dict:
+    def get_results(self, interaction: tuple, operators: tuple=
+                    ("xx","yy","zz", "xy","yx","xz", "zx","yz","zy")) -> dict:
 
         """
         Outputs average Hamiltonians as a dictionary or numpy array (3D).
 
         Args:
-            returnType (tuple): can be used to specify the output.
-              An interaction (tuple) can be specified with "returns".
-              Default will return all results.
+            interaction (tuple): specify the interaction for which the
+              average Hamiltonian is supposed to be retrieved.
+
+            operators (list): specify a list of all operators that are
+              supposed to be retrieved. Only bilinear operators are valid.
+              Defaults to ("xx","yy","zz", "xy","yx","xz", "zx","yz","zy").
 
         Returns:
-            numpy arrad (3D) if an interaction is specified in returnType,
-            else a dictionary containing all interactions. The 3 dimensions
-            in the numpy array are given as (9, len(offsets), len(offsets))
-            where the offsets were defined by "set_offsets" for respective
-            spins in interaction. In the first dimension the 9 bilinear
-            basis operators are stored:
-            "xx": [0], "xy": [1], "xz": [2],
-            "yx": [3], "yy": [4], "yz": [5],
-            "zx": [6], "zy": [7], "zz": [8].
+            A dictionary containing average Hamiltonian for all offsets
+            and specified operators.
         """
 
-        if returns is None:
-            iterable = self._Interactions
-        else:
-            iterable = [returns]
-
+        # Index of respective operators in self._Results
+        index = {"xx": (0,), "xy": (1,), "xz": (2,),
+                 "yx": (3,), "yy": (4,), "yz": (5,),
+                 "zx": (6,), "zy": (7,), "zz": (8,),}
         # ====================================================================
+        
+        valid = set(index.keys())
+        if not valid.issuperset(set(operators)):
+            raise ValueError("The entered operators are not valid.\n\
+            Please use some of the following: \n {}".format(valid))
+        # ====================================================================
+
         results = {}
+        spin1, spin2, _ = interaction
+        temp = self._get_results(interaction)
 
-        for interaction in iterable:
-            spin1, spin2, _ = interaction
+        for op in operators:
+            results[op] = temp[index[op]]
 
-            lo1 = len(self._Offsets[spin1])
-            lo2 = len(self._Offsets[spin2])
-            results[interaction] = np.zeros([9, lo1, lo2])
+        results[("offset", spin1)] = self._Offsets[spin1]
+        results[("offset", spin2)] = self._Offsets[spin2]
 
-            for o1 in range(lo1):
-                for o2 in range(lo2):
-
-                    results[interaction][:, o1, o2] = \
-                        self._Results.get((interaction, o1, o2))
-
-        if returns is None:
-            return results
-
-        return results[returns]
+        return results
     # ====================================================================
 
 
-    def get_traject(self):
+    def get_traject(self, interaction: tuple, \
+                    operators: tuple=("x1","y1","z1","xx","yy","zz"), \
+                    offsets: dict=None, labels: bool=False):
         """
-        ...coming soon...
+        Get trajectories of Hamiltonian in the toggling / interaction frame.
+
+        Args:
+            interaction (tuple): specify the interaction for which the
+              trajectory is supposed to be retrieved.
+
+            operators (list): specify a list of all operators that are
+              supposed to be retrieved. Valid input is:
+              ["x1","y1","z1","1x","1y","1z",
+               "xx","yy","zz","xy","xy","xz", "zx", "yz", "zy"]
+              Defaults to ["x1","y1","z1","xx","yy","zz"].
+
+            offsets (dict): is a dictionary in which for each spin an offset
+              can be defined for which the trajectory is supposed to be
+              retrieved (e.g. offsets = {spin1: 0, spin2: 100}).
+              Defaults to None (which implies all offsets).
         """
+
+        # Index of respective operators in self._Out (linear operators)
+        # or in self._Traject (bilinear operators).
+        index = {            "1x": (0,), "1y": (1,), "1z": (2,),
+                 "x1": (0,), "xx": (0,), "xy": (1,), "xz": (2,),
+                 "y1": (1,), "yx": (3,), "yy": (4,), "yz": (5,),
+                 "z1": (2,), "zx": (6,), "zy": (7,), "zz": (8,),}
+        # ====================================================================
 
         if self._flagT is False:
             raise AssertionError("Trajectories were not calculated. \
                 Use the option in Frame.start(Traject=True).")
+        # ====================================================================
 
-        return dict(self._Traject)
+        valid = set(index.keys())
+        if not valid.issuperset(set(operators)):
+            raise ValueError("The entered operators are not valid.\n\
+            Please use some of the following: \n {}".format(valid))
+        # ====================================================================
+
+        time, trajects, labels_out = {}, {}, {}
+        spin1, spin2 = interaction[0], interaction[1]
+
+        # Get index of specified offsets (or default-offset: 0)
+        if offsets is None:
+            idx1 = self._find_nearest(self._Offsets[spin1], 0)
+            idx2 = self._find_nearest(self._Offsets[spin2], 0)
+        elif spin1 in offsets.keys() and spin2 in offsets.keys():
+            idx1 = self._find_nearest(self._Offsets[spin1], offsets[spin1])
+            idx2 = self._find_nearest(self._Offsets[spin2], offsets[spin2])
+        elif spin1 in offsets.keys():
+            idx1 = self._find_nearest(self._Offsets[spin1], offsets[spin1])
+            idx2 = self._find_nearest(self._Offsets[spin2], 0)
+        elif spin2 in offsets.keys():
+            idx1 = self._find_nearest(self._Offsets[spin1], 0)
+            idx2 = self._find_nearest(self._Offsets[spin2], offsets[spin2])
+        # ====================================================================
+
+        # Retrieve data from self._Out (linear operators) and from
+        # self._Traject (bilinear operators)
+        for i, op in enumerate(operators):
+            if operators[i][0] == "1":
+                time[op] = self._Out.get((spin2, idx2))[-1] * 1000
+                trajects[op] = self._Out.get((spin2, idx2))[index[operators[i]]]
+                labels_out[op] = "${}_{}$".format(spin2, operators[i][1])
+            elif operators[i][1] == "1":
+                time[op] = self._Out.get((spin1, idx1))[-1] * 1000
+                trajects[op] = self._Out.get((spin1, idx1))[index[operators[i]]]
+                labels_out[op] = "${}_{}$".format(spin1, operators[i][0])
+            else:
+                time[op] = self._Traject.get((interaction, idx1, idx2)\
+                                             )[-1] * 1000
+                trajects[op] = self._Traject.get((interaction, idx1, idx2)
+                                                 )[index[operators[i]]]
+                labels_out[op] = "$2{}_{}{}_{}$".format(spin1, operators[i][0],\
+                                                   spin2, operators[i][1])
+        # ====================================================================
+
+        if labels:
+            return time, trajects, labels_out
+        else:
+            return time, trajects
     # ====================================================================
 
 
@@ -512,76 +580,23 @@ class Frame():
             ValueError: if specified operators are not valid.
         """
 
-        # offsets = {spin1: 0, spin2: 100}
-
-        X, Y, labels, AHT = {}, {}, {}, {}
         n = len(operators)
         spin1, spin2 = interaction[0], interaction[1]
-
-        # Index of respective operators in self._Out (linear operators)
-        # or in self._Traject (bilinear operators).
-        index = {            "1x": (0,), "1y": (1,), "1z": (2,),
-                 "x1": (0,), "xx": (0,), "xy": (1,), "xz": (2,),
-                 "y1": (1,), "yx": (3,), "yy": (4,), "yz": (5,),
-                 "z1": (2,), "zx": (6,), "zy": (7,), "zz": (8,),}
-        # ====================================================================
-
-        # Check for invalid input in operators
-        valid = set(index.keys())
-        if not valid.issuperset(set(operators)):
-            raise ValueError("The entered operators are not valid.\n\
-            Please use some of the following: \n {}".format(valid))
-        # ====================================================================
-
-        # Set offsets to 0 (default) or as specified in offsets-input
-        if offsets is None:
-            idx1 = self._find_nearest(self._Offsets[spin1], 0)
-            idx2 = self._find_nearest(self._Offsets[spin2], 0)
-        elif spin1 in offsets.keys() and spin2 in offsets.keys():
-            idx1 = self._find_nearest(self._Offsets[spin1], offsets[spin1])
-            idx2 = self._find_nearest(self._Offsets[spin2], offsets[spin2])
-        elif spin1 in offsets.keys():
-            idx1 = self._find_nearest(self._Offsets[spin1], offsets[spin1])
-            idx2 = self._find_nearest(self._Offsets[spin2], 0)
-        elif spin2 in offsets.keys():
-            idx1 = self._find_nearest(self._Offsets[spin1], 0)
-            idx2 = self._find_nearest(self._Offsets[spin2], offsets[spin2])
-        # ====================================================================
-
-        # Retrieve data from self._Out (linear operators) and from
-        # self._Traject (bilinear operators) for plotting
-        for i in range(n):
-            if operators[i][0] == "1":
-                X[i] = self._Out.get((spin2, idx2))[-1] * 1000
-                Y[i] = self._Out.get((spin2, idx2))[index[operators[i]]]
-                labels[i] = "${}_{}$".format(spin2, operators[i][1])
-            elif operators[i][1] == "1":
-                X[i] = self._Out.get((spin1, idx1))[-1] * 1000
-                Y[i] = self._Out.get((spin1, idx1))[index[operators[i]]]
-                labels[i] = "${}_{}$".format(spin1, operators[i][0])
-            else:
-                X[i] = self._Traject.get(\
-                    (interaction, idx1, idx2)\
-                                        )[-1] * 1000
-                Y[i] = self._Traject.get(\
-                    (interaction, idx1, idx2)\
-                                        )[index[operators[i]]]
-                labels[i] = "$2{}_{}{}_{}$".format(spin1, operators[i][0],\
-                                                   spin2, operators[i][1])
-        # ====================================================================
+        time, trajects, labels = self.get_traject(interaction, operators,
+                                                  offsets, labels=True)
 
         # Calculate average value for given operator
-        for i in range(n):
-
-            T = X[i][-1]
-            dT = self._diffT(X[i])
-            iH = self._interH1(Y[i])
-            AHT[i] = round(self._integrate1(dT, iH) / T * 100, 1)
+        AHT = {}
+        for i, op in enumerate(operators):
+            T = time[op][-1]
+            dT = self._diffT(time[op])
+            iH = self._interH1(trajects[op])
+            AHT[op] = round(self._integrate1(dT, iH) / T * 100, 1)
         # ====================================================================
 
         # create Grid object for plotting
-        grid = Grid(n)
-        grid.plot1D(X, Y)
+        grid = Grid(operators)
+        grid.plot1D(time, trajects)
         grid.set_labels(labels, AHT)
         grid.set_xaxis("time / ms")
 
@@ -620,7 +635,7 @@ class Frame():
 
         # Get index and retrieve data
         idx = self._find_nearest(self._Offsets[fixed_spin], offset)
-        temp_all = self.get_results(interaction)
+        temp_all = self._get_results(interaction)
 
         if interaction[0] == fixed_spin:
             spinX = interaction[1]
@@ -684,7 +699,7 @@ class Frame():
 
         X = self._Offsets[spinX] / 1000
         Y = self._Offsets[spinY] / 1000
-        Z = self.get_results(interaction)
+        Z = self._get_results(interaction)
 
         if zlim is not None:
             vmax = zlim
@@ -1001,9 +1016,7 @@ class Frame():
         T1 = self._Out[(spin1, o1)]
         T2 = self._Out[(spin2, o2)]
 
-        # if round(T1[9][-1], 12) != round(T2[9][-1], 12):
-        #     print("WARNING: TIME-MISMATCH?")
-
+        # This might double all values, but only if T1 == T2        
         timeseries = np.sort(np.concatenate( [T1[9], T2[9]] ) )
 
         # Interpolation
@@ -1123,6 +1136,23 @@ class Frame():
             custom sequences must be specified for different spins!")
 
         return time1, time2
+    # ====================================================================
+
+
+    # ====================================================================
+    # used for plotting
+    def _get_results(self, interaction):
+
+        spin1, spin2, _ = interaction
+        lo1 = len(self._Offsets[spin1])
+        lo2 = len(self._Offsets[spin2])
+
+        results = np.zeros([9, lo1, lo2])
+        for o1 in range(lo1):
+            for o2 in range(lo2):
+                results[:, o1, o2] = self._Results.get((interaction, o1, o2))
+
+        return results
     # ====================================================================
 
 

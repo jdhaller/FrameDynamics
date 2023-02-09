@@ -27,7 +27,7 @@ block2 = Block(frame, ["S"])
 
 # define a Reburp pulse on "I" and hard pulse on "S"
 block1.shape(["I"], Reburp, length=1000*10**(-6), amplitude=6264.8, phase=1)
-block2.pulse(["S"], 180, 10**(5), 1)
+block2.pulse(["S"], degree=180, amplitude=10000, phase=1)
 
 # align Reburp ("I") and hard pulse ("S") and simulate 
 frame.align(block1, block2, alignment="center")
@@ -40,4 +40,9 @@ if __name__ == "__main__":    # required in Windows for multiprocessing
     frame.plot_H0_1D(interaction, "S", offset=0.)
     frame.plot_traject(interaction)
 
+    time, traject = frame.get_traject(interaction,
+                                      offsets={"I": 0, "S": 300},
+                                      operators=["1z", "zz"])
+    average_Hamiltonian = frame.get_results(interaction,
+                                            operators=["zz"])
 

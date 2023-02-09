@@ -29,11 +29,12 @@ class Plotter():
 
 class Grid(Plotter):
 
-    def __init__(self, n):
-        self.n = n
-        self.fig = plt.figure(figsize=(10, 0.5+n*1.5))
+    def __init__(self, operators):
+        self.n = len(operators)
+        self.operators = operators
+        self.fig = plt.figure(figsize=(10, 0.5+self.n*1.5))
         self.ax = ImageGrid(self.fig, 111,         
-                  nrows_ncols=(n,1),
+                  nrows_ncols=(self.n,1),
                   axes_pad=0.23,
                   share_all=True,
                   aspect=False)
@@ -41,24 +42,24 @@ class Grid(Plotter):
 
     def plot1D(self, X, Y):
 
-        for i in range(self.n):
-            self.ax[i].plot(X[i], Y[i], color='#80000f', lw=2.)
-            self.ax[i].fill_between(X[i], Y[i], color='#cc000f')
+        for i, op in enumerate(self.operators):
+            self.ax[i].plot(X[op], Y[op], color='#80000f', lw=2.)
+            self.ax[i].fill_between(X[op], Y[op], color='#cc000f')
             self.ax[i].set_ylabel("k(t)", rotation=0, size=14)
             self.ax[i].yaxis.set_label_coords(-0.05,0.85)
-            self.ax[i].plot([X[i][0],X[i][-1]],[1,1],"k--",lw=0.5)
-            self.ax[i].plot([X[i][0],X[i][-1]],[0,0],"k",lw=1)
-            self.ax[i].plot([X[i][0],X[i][-1]],[-1,-1],"k--",lw=0.5)
+            self.ax[i].plot([X[op][0],X[op][-1]],[1,1],"k--",lw=0.5)
+            self.ax[i].plot([X[op][0],X[op][-1]],[0,0],"k",lw=1)
+            self.ax[i].plot([X[op][0],X[op][-1]],[-1,-1],"k--",lw=0.5)
             
-        self.ax[0].set_xlim([X[i][0], X[i][-1]])
+        self.ax[0].set_xlim([X[op][0], X[op][-1]])
     # ====================================================================
 
     def set_labels(self, labels, AHT):
 
-        for i in range(self.n):
-            self.ax[i].text(-0.1,0.5, labels[i], size=18, \
+        for i, op in enumerate(self.operators):
+            self.ax[i].text(-0.1,0.5, labels[op], size=18, \
                             transform=self.ax[i].transAxes, ha="center")
-            L = "({}%)".format(AHT[i])
+            L = "({}%)".format(AHT[op])
             self.ax[i].text(-0.1,0.31, L, size=12, \
                             transform=self.ax[i].transAxes, ha="center")
     # ====================================================================
