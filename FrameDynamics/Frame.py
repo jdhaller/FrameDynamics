@@ -295,14 +295,14 @@ class Frame():
     # ====================================================================
 
 
-    def start(self, MP: bool=True, CPUs: int=None, traject: bool=False) \
+    def start(self, MP: bool=False, CPUs: int=None, traject: bool=False) \
              -> None:
 
         """
         Start simulations after the pulse sequence has been defined.
 
         Args:
-            MP (bool, optional): use multiprocessing. Defaults to True.
+            MP (bool, optional): use multiprocessing. Defaults to False.
 
             CPUs (int, optional): define number of CPUs for multiprocessing.
               Defaults to None and all CPUs except one is used.
@@ -332,7 +332,6 @@ class Frame():
                 self.CPUs = 1
             else:
                 self._CPUs = mp.cpu_count() - 1
-
         else:
             MP = True
             self._CPUs = CPUs
@@ -340,17 +339,8 @@ class Frame():
         if MP:
             self._Out = mp.Manager().dict()
             pool = mp.Pool(processes=self._CPUs)
-
-            self._Results = mp.Manager().dict()
-            pool2 = mp.Pool(processes=self._CPUs)
-            if self._flagT:
-                self._Traject = mp.Manager().dict()
-
         else:
             self._Out = {}
-            self._Results = {}
-            if self._flagT:
-                self._Traject = {}
         # ====================================================================
 
 
@@ -358,6 +348,10 @@ class Frame():
         # Calculate the trajectories of all spins and offsets individually
         # Typical structure: self._Offsets = {spin: offsets}
         # e.g. self._Offsets = {'H1': [0], 'H2': [-2, -1, 0, 1, 2]}
+
+        self._Results = {}
+        if self._flagT:
+            self._Traject = {}
 
         for spin, offsets in self._Offsets.items():
             for o, offset in enumerate(offsets):
@@ -380,8 +374,6 @@ class Frame():
         if MP:
             pool.close()    # Close pool of workers
             pool.join()     # Join pool
-            # self._Out.clear()
-
         # ====================================================================
 
         self._STEP = time.time()
@@ -399,14 +391,7 @@ class Frame():
                     args = (interaction, o1, o2)
 
                     # Start calculation of average Hamiltonian
-                    if MP:
-                        pool2.apply_async(self._expandBasis, args=args)
-                    else:
-                        self._expandBasis(interaction, o1, o2)
-
-        if MP:
-            pool2.close()    # Close pool of workers
-            pool2.join()     # Join pool
+                    self._expandBasis(interaction, o1, o2)
         # ====================================================================
 
         self.END = time.time()
@@ -743,25 +728,26 @@ class Frame():
     mIb = np.array([[0,0],[0,1]], dtype="complex64")
 
 
-    def __init__(self, spins):
+    def __init__(self, spins: list, PtsPerRot: int=37):
         """
         spins = ["I", "J"]
         """
+
         # ====================================================================
-        self._Spins = spins         # List for all spins
-        self._Offsets = {spin: [0] for spin in spins}  # Offsets for each spin
-        self._Sequence = []         # List for pulse sequence
+        self._Spins = spins          # List for all spins
+        self._Offsets = {spin: np.array([0]) for spin in spins}  # Offsets for each spin
+        self._Sequence = []          # List for pulse sequence
 
         self._Zeeman = np.zeros((2, 2), dtype="complex64")  # alloc
         self._H = (self.mIz, self.mIy, self.mIx)    # constant single-spin Ham
-        self._Interactions = []     # List of considered interactions
-        self._PtsPerRot = 21        # How many points per oscillation
-        self._flagT = False         # Flag for trajectories
+        self._Interactions = []      # List of considered interactions
+        self._PtsPerRot = PtsPerRot  # How many points per oscillation
+        self._flagT = False          # Flag for trajectories
     # ====================================================================
 
 
     def __version__(self):
-        print("FrameDynamics version: 1.1.6")
+        print("FrameDynamics version: 0.1.8")
 
 
     def _setZeeman(self, offset):

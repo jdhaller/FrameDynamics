@@ -1,4 +1,3 @@
-
 # FrameDynamics
 
 FrameDynamics is a python package that provides numerical simulations for the 
@@ -55,7 +54,7 @@ frame.delay(tau)
 Start the simulations and plot trajectories. Using multiprocessing, the scope has to be resolved in Windows.
 ```Python
 if __name__ == "__main__":
-    frame.start(traject=True)
+    frame.start(MP=True, traject=True)
     frame.plot_traject(interaction, save="WAHUHA.png")
 ```
 
@@ -104,10 +103,10 @@ block2.pulse(["S"], degree=180, amplitude=10000, phase=1)
 ```
 
 Align Reburp ("I") and hard pulse ("S") and start simulation (here without 
-multiprocessing, MP=False):
+multiprocessing, default is MP=False):
 ```Python
 frame.align(block1, block2, alignment="center")
-frame.start(MP=False, traject=True)
+frame.start(traject=True)
 ```
 
 Create offset-dependent 2D graph that is plotted against both offsets:

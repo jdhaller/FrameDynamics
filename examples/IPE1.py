@@ -53,5 +53,3 @@ frame.start(MP=False, traject=True)
 
 # plotting 
 frame.plot_traject(interaction)
-
-

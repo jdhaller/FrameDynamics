@@ -23,10 +23,9 @@ Chirp = frame.load_shape("SmCrp_BW50_RF9403_720u")
 frame.shape(["I", "J"], Chirp, length=720*10**(-6), amplitude=9403, phase=1) 
 
 if __name__ == "__main__":    # required in Windows for multiprocessing
-    frame.start(traject=True)
+    frame.start(MP=True, traject=True)
 
     # plotting
     frame.plot_H0_2D(interaction, save="Chirp_TF2D.png")
     frame.plot_H0_1D(interaction, "J", offset=0., save="Chirp_TF1D.png")
     frame.plot_traject(interaction)
-

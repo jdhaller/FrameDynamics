@@ -33,7 +33,7 @@ block2.pulse(["S"], degree=180, amplitude=10000, phase=1)
 frame.align(block1, block2, alignment="center")
 
 if __name__ == "__main__":    # required in Windows for multiprocessing
-    frame.start(traject=True)
+    frame.start(MP=True, traject=True)
 
     # plotting
     frame.plot_H0_2D(interaction)
@@ -45,4 +45,3 @@ if __name__ == "__main__":    # required in Windows for multiprocessing
                                       operators=["1z", "zz"])
     average_Hamiltonian = frame.get_results(interaction,
                                             operators=["zz"])
-
