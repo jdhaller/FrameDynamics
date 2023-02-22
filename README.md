@@ -51,11 +51,10 @@ frame.pulse(["I", "J"], degree=90, amplitude=10**(5), phase=2)
 frame.delay(tau)
 ``` 
 
-Start the simulations and plot trajectories. Using multiprocessing, the scope has to be resolved in Windows.
+Start the simulations and plot trajectories without using multiprocessing (default: `MP=False`).
 ```Python
-if __name__ == "__main__":
-    frame.start(MP=True, traject=True)
-    frame.plot_traject(interaction, save="WAHUHA.png")
+frame.start(traject=True)
+frame.plot_traject(interaction, save="WAHUHA.png")
 ```
 
 ## Example #2: Reburp pulse
@@ -83,6 +82,7 @@ offsetsS = np.linspace(-off, off, 61)
 frame.set_offset("I", offsetsI)
 frame.set_offset("S", offsetsS)
 ```
+
 Load pulse shape to array:
 ```Python
 Reburp = frame.load_shape("Reburp.1000")
@@ -96,41 +96,35 @@ block1 = Block(frame, ["I"])
 block2 = Block(frame, ["S"])
 ```
 
-Define a Reburp pulse on "I" and hard pulse on "S":
+Define a Reburp pulse on `"I"` and hard pulse on `"S"` in first two lines.
+Then center-align both block-elements (Reburp and hard pulse) within the frame-object.
 ```Python
 block1.shape(["I"], Reburp, length=1000*10**(-6), amplitude=6264.8, phase=1)
 block2.pulse(["S"], degree=180, amplitude=10000, phase=1)
-```
-
-Align Reburp ("I") and hard pulse ("S") and start simulation (here without 
-multiprocessing, default is MP=False):
-```Python
 frame.align(block1, block2, alignment="center")
-frame.start(traject=True)
 ```
 
-Create offset-dependent 2D graph that is plotted against both offsets:
-```Python
-frame.plot_H0_2D(interaction)
-```
+Start the simulations using multiprocessing (`MP=True`). 
+If using multiprocessing on Windows, the scope has to be resolved (`if __name__ == "__main__"`). Note, plotting and data retrieval has to be done in the same scope.
 
-Create offset-dependent 1D graph that is plotted against specified offsets ("S"):
 ```Python
-frame.plot_H0_1D(interaction, "S", offset=0.)
-```
+if __name__ == "__main__":, 
+    frame.start(MP=True, traject=True)
 
-Plot trajectories for specified interaction and operators (the given operators are default values). 
-```Python
-frame.plot_traject(interaction, operators=["x1","y1","z1","xx","yy","zz"])
-```
+    # Create offset-dependent 2D graph of the zeroth order average
+    # Hamiltonian (H0) that is plotted against both offsets
+    frame.plot_H0_2D(interaction, zlim=1)
 
-Plot trajectories for specified interaction and operators (the given operators are default values). 
-```Python
-frame.plot_traject(interaction, operators=["x1","y1","z1","xx","yy","zz"])
-```
+    # Create offset-dependent 1D graph of H0 where offset of spin "S" 
+    # is fixed to specified value (offset=0.)
+    frame.plot_H0_1D(interaction, "S", offset=0.)
 
-Retrieve trajectories and the resulting average Hamiltonian as dictionaries:
-```Python
-time, traject = frame.get_traject(interaction, offsets={"I": 0, "S": 300}, operators=["1z", "zz"])
-average_Hamiltonian = frame.get_results(interaction, operators=["zz"])
+    # Plot trajectories for specified interaction and operators
+    # (the given operators are default values)
+    frame.plot_traject(interaction, operators=["x1","y1","z1","xx","yy","zz"])
+
+    # Retrieve trajectories and the resulting average Hamiltonian.
+    # Dictionaries are returned for specified offsets and operators.
+    time, traject = frame.get_traject(interaction, offsets={"I": 0, "S": 300}, operators=["1z", "zz"])
+    average_Hamiltonian = frame.get_results(interaction, operators=["zz"])
 ```
