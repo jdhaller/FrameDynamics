@@ -25,8 +25,12 @@ class Frame():
     Numerical simulation of a toggling or interaction frame for
     arbitrary pulse sequences.
 
-    Args for init:
-        spins (list): specify all spins in a list (e.g. ["I", "J", "S])
+    Args:
+        spins (list): specify all spins in a list (e.g. ["I", "J"])
+
+        N (int): is used for discretization of time-dependent continuous
+          Hamiltonian. N defines the number of sampled points per rotation.
+          Defaults to 45, which corresponds to 360° / N = 8°.
 
     Returns:
         Frame-Object: object that encapsulates all methods for the simulation.
@@ -396,7 +400,7 @@ class Frame():
 
         self.END = time.time()
         diff = self.END - self._STEP
-        print("   Basis Expansion: {:.3f} seconds ".format(diff))
+        print("   Basis expansion: {:.3f} seconds ".format(diff))
 
         diff = self.END - self._START
         print("\n  === >>>   Total: {:.3f} seconds   <<< ===\n".format(diff))
@@ -671,13 +675,6 @@ class Frame():
         Raises:
             ValueError: if defined spin is not in interaction.
 
-            Args:
-            interaction (_type_): _description_
-            levels (int, optional): _description_. Defaults to 21.
-            zlims (_type_, optional): _description_. Defaults to None.
-            save (_type_, optional): _description_. Defaults to None.
-            show (bool, optional): _description_. Defaults to True.
-
         """
 
         spinY, spinX = interaction[0], interaction[1]
@@ -728,9 +725,9 @@ class Frame():
     mIb = np.array([[0,0],[0,1]], dtype="complex64")
 
 
-    def __init__(self, spins: list, PtsPerRot: int=37):
+    def __init__(self, spins: list, N: int=45):
         """
-        spins = ["I", "J"]
+        Initialize Frame object.
         """
 
         # ====================================================================
@@ -741,7 +738,7 @@ class Frame():
         self._Zeeman = np.zeros((2, 2), dtype="complex64")  # alloc
         self._H = (self.mIz, self.mIy, self.mIx)    # constant single-spin Ham
         self._Interactions = []      # List of considered interactions
-        self._PtsPerRot = PtsPerRot  # How many points per oscillation
+        self._PtsPerRot = N          # How many points per oscillation
         self._flagT = False          # Flag for trajectories
     # ====================================================================
 
