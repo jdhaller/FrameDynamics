@@ -73,6 +73,11 @@ class Frame():
         if self._Sequence != []:
             raise RuntimeError("Please, specify interactions \
                  prior to the pulse sequence!")
+
+        else if iType not in ["Jweak", "Jstrong", "Dweak", "Dstrong"]:
+            raise ValueError("Please choose valid interaction type: \n \
+            \"Jweak\", \"Jstrong\", \"Dweak\" or \"Dstrong\".")
+
         self._Interactions.append( (spin1, spin2, iType) )
 
         return (spin1, spin2, iType)
